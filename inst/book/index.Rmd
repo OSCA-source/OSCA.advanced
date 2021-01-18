@@ -1,0 +1,27 @@
+--- 
+title: "Orchestrating Single-Cell Analysis with Bioconductor: Advanced"
+documentclass: book
+bibliography: ref.bib
+biblio-style: apalike
+link-citations: yes
+favicon: "`r rebook::BiocFavicon()`"
+github-repo: "LTLA/OSCA.intro"
+---
+
+```{r, echo=FALSE}
+.gh_url <- file.path('https://github.com', rmarkdown::metadata[['github-repo']])
+```
+
+---
+date: "`r rebook::openingDetails(Source=.gh_url)`"
+url: "`r .gh_url`"
+---
+
+# Welcome {-}
+
+<a href="https://bioconductor.org"><img src="`r rebook::BiocSticker('animated')`" width="200" alt="Bioconductor Sticker" align="right" style="margin: 0 1em 0 1em" /></a> 
+
+This site contains the advanced analysis chapters for the `r BiocStyle::Biocbook("OSCA", label='__"Orchestrating Single-Cell Analysis with Bioconductor"__ book')`.
+It describes the more complex steps of a single-cell RNA-seq analysis, ranging from data integration,
+modality-specific processing, multi-sample analyses, doublet detection, cell cycle assignment and more.
+This builds on many of the concepts introduced in the basic chapters.

@@ -1,0 +1,19 @@
+book_filename: "OSCA.advanced"
+pagetitle: "Orchestrating Single-Cell Analysis with Bioconductor: Advanced"
+delete_merged_file: true
+new_session: true
+language:
+  ui:
+    chapter_name: "Chapter "
+output_dir: "docs"
+rmd_files: ["index.Rmd",
+    "data-integration.Rmd",
+    "sample-comparisons.Rmd",
+    "droplet-processing.Rmd",
+    "doublet-detection.Rmd",
+    "cell-cycle.Rmd",
+    "trajectory.Rmd",
+    "nuclei-analysis.Rmd",
+    "protein-abundance.Rmd",
+    "interactive.Rmd",
+    "big-data.Rmd"]

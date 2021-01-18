@@ -1,0 +1,59 @@
+Package: OSCA.advanced
+Title: Advanced OSCA
+Version: 0.99.0
+Date: 2021-01-17
+Authors@R: c( 
+        person('Robert', 'Amezquita', role = c('aut')), 
+        person('Aaron', 'Lun', role = c('aut', 'cre'), email="infinite.monkeys.with.keyboards@gmail.com"), 
+        person('Stephanie', 'Hicks', role = 'aut'), 
+        person('Raphael', 'Gottardo', role = 'aut') 
+    )
+Description: 
+    Deploys the advanced analysis chapters for the "Orchestrating Single Cell Analysis with Bioconductor" book.
+    This describes the more complex steps of a single-cell RNA-seq analysis, ranging from data integration,
+    modality-specific processing, multi-sample analyses, doublet detection, cell cycle assignment and more.
+    This builds on many of the concepts introduced in the basic chapters.
+Depends: batchelor,
+    BiocNeighbors,
+    BiocParallel,
+    BiocSingular,
+    bluster,
+    DropletTestFiles,
+    DropletUtils,
+    edgeR,
+    ggplot2,
+    gridExtra,
+    igraph,
+    iSEE,
+    MouseGastrulationData,
+    mumosa,
+    org.Mm.eg.db,
+    pheatmap,
+    rebook,
+    rmarkdown,
+    Rtsne,
+    scater,
+    scDblFinder,
+    scPCA,
+    scran,
+    scRNAseq,
+    scuttle,
+    SingleR,
+    slingshot,
+    TENxBrainData,
+    tradeSeq,
+    TSCAN,
+    velociraptor,
+    viridis
+Suggests: 
+    OSCA.basic,
+    OSCA.workflows,
+    rmarkdown,
+    knitr
+VignetteBuilder: knitr
+License: CC BY
+URL: https://github.com/LTLA/OSCA.advanced
+biocViews: 
+    ImmunoOncologyWorkflow,
+    Workflow, 
+    SingleCellWorkflow
