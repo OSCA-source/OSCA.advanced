@@ -22,6 +22,10 @@ url: "`r .gh_url`"
 <a href="https://bioconductor.org"><img src="`r rebook::BiocSticker('animated')`" width="200" alt="Bioconductor Sticker" align="right" style="margin: 0 1em 0 1em" /></a> 
 
 This site contains the advanced analysis chapters for the `r BiocStyle::Biocbook("OSCA", label='__"Orchestrating Single-Cell Analysis with Bioconductor"__ book')`.
-It describes the more complex steps of a single-cell RNA-seq analysis, ranging from data integration,
-modality-specific processing, multi-sample analyses, doublet detection, cell cycle assignment and more.
-This builds on many of the concepts introduced in the basic chapters.
+```{r, results="asis", echo=FALSE}
+text <- packageDescription("OSCA.advanced")$Description
+remainders <- strsplit(text, "\\.\\s")[[1]][-1]
+remainders <- sub("^\\s+", "", remainders)
+remainders <- paste(remainders, collapse=". ")
+cat(remainders, sep="\n")
+```

@@ -10,9 +10,10 @@ Authors@R: c(
     )
 Description: 
     Deploys the advanced analysis chapters for the "Orchestrating Single Cell Analysis with Bioconductor" book.
-    This describes the more complex steps of a single-cell RNA-seq analysis, ranging from data integration,
-    modality-specific processing, multi-sample analyses, doublet detection, cell cycle assignment and more.
-    This builds on many of the concepts introduced in the basic chapters.
+    This describes the more complex steps of a single-cell RNA-seq analysis, ranging from integration of multiple datasets,
+    multi-sample differential comparisons, doublet detection, cell cycle assignment, droplet-specific processing,
+    nuclei-specific analyses, trajectory analyses, integrated analyses with protein abundances, and interactive visualization.
+    It is intended for readers who are already familiar with basic single-cell analyses, possibly after reading some of the prior books in this collection.
 Depends: batchelor,
     BiocNeighbors,
     BiocParallel,
