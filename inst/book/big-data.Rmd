@@ -96,7 +96,7 @@ str(reducedDim(i.out))
 Both IRLBA and randomized SVD (RSVD) are much faster than the exact SVD with negligible loss of accuracy.
 This motivates their default use in many `r Biocpkg("scran")` and `r Biocpkg("scater")` functions, at the cost of requiring users to set the seed to guarantee reproducibility.
 IRLBA can occasionally fail to converge and require more iterations (passed via `maxit=` in `IrlbaParam()`), while RSVD involves an explicit trade-off between accuracy and speed based on its oversampling parameter (`p=`) and number of power iterations (`q=`).
-We tend to prefer IRLBA as its default behavior is more accurate, though RSVD is much faster for file-backed matrices (Section \@ref(integrating-datasets)).
+We tend to prefer IRLBA as its default behavior is more accurate, though RSVD is much faster for file-backed matrices (Section \@ref(out-of-memory-representations)).
 
 ## Parallelization
 
