@@ -106,10 +106,7 @@ Some cells may be shared across multiple paths, in which case they will have the
 We can then examine the pseudotime ordering on our desired visualization as shown in Figure \@ref(fig:tscan-nest-pseudo).
 
 ```{r tscan-nest-pseudo, fig.cap="$t$-SNE plot of the Nestorowa HSC dataset, where each point is a cell and is colored according to its pseudotime value. The MST obtained using _TSCAN_ is overlaid on top."}
-# Taking the rowMeans just gives us a single pseudo-time for all cells. Cells
-# in segments that are shared across paths have the same pseudo-time value for
-# those paths anyway, so the rowMeans doesn't change anything.
-common.pseudo <- rowMeans(tscan.pseudo, na.rm=TRUE)
+common.pseudo <- averagePseudotime(tscan.pseudo) 
 plotTSNE(sce.nest, colour_by=I(common.pseudo), 
         text_by="label", text_colour="red") +
     geom_line(data=line.data, mapping=aes(x=dim1, y=dim2, group=edge))
@@ -139,7 +136,8 @@ We set `outgroup=TRUE` to introduce an outgroup with an automatically determined
 which breaks up our previous MST into two components (Figure \@ref(fig:tscan-nest-omega)).
 
 ```{r tscan-nest-omega, fig.cap="Minimum spanning tree of the Nestorowa clusters after introducing an outgroup."}
-pseudo.og <- quickPseudotime(sce.nest, use.dimred="PCA", outgroup=TRUE)
+# TODO: https://github.com/LTLA/TrajectoryUtils/pull/3 to avoid having to set outscale.
+pseudo.og <- quickPseudotime(sce.nest, use.dimred="PCA", outgroup=TRUE, outscale=1.5)
 set.seed(10101)
 plot(pseudo.og$mst)
 ```
@@ -157,7 +155,7 @@ in contrast, the MNN distance is very low and encourages the MST to create a con
 
 ```{r tscan-nest-mnn, fig.cap="$t$-SNE plot of the Nestorowa HSC dataset, where each point is a cell and is colored according to its pseudotime value. The MST obtained using _TSCAN_ with MNN distances is overlaid on top."}
 pseudo.mnn <- quickPseudotime(sce.nest, use.dimred="PCA", with.mnn=TRUE)
-mnn.pseudo <- rowMeans(pseudo.mnn$ordering, na.rm=TRUE)
+mnn.pseudo <- averagePseudotime(pseudo.mnn$ordering)
 plotTSNE(sce.nest, colour_by=I(mnn.pseudo), text_by="label", text_colour="red") +
     geom_line(data=pseudo.mnn$connected$TSNE, mapping=aes(x=dim1, y=dim2, group=edge))
 ```
@@ -227,6 +225,10 @@ However, unlike `r Biocpkg("TSCAN")`, the MST here is only used as a rough guide
 ```{r traj-princurve-clustered-nest, fig.cap="UMAP plot of the Nestorowa HSC dataset where each point is a cell and is colored by the average _slingshot_ pseudotime across paths. The principal curves fitted to each lineage are shown in black."}
 sce.nest <- runUMAP(sce.nest, dimred="PCA")
 reducedDim(sce.sling2, "UMAP") <- reducedDim(sce.nest, "UMAP")
+
+# Taking the rowMeans just gives us a single pseudo-time for all cells. Cells
+# in segments that are shared across paths have similar pseudo-time values in 
+# all paths anyway, so taking the rowMeans is not particularly controversial.
 shared.pseudo <- rowMeans(pseudo.paths, na.rm=TRUE)
 
 # Need to loop over the paths and add each one separately.
@@ -359,8 +361,8 @@ Incidentally, this is the same cluster that was split into a separate component 
 ```{r}
 # Making a copy of our SCE and including the pseudotimes in the colData.
 sce.nest2 <- sce.nest
-sce.nest2$TSCAN.first <- tscan.pseudo[,1]
-sce.nest2$TSCAN.second <- tscan.pseudo[,2]
+sce.nest2$TSCAN.first <- pathStat(tscan.pseudo)[,1]
+sce.nest2$TSCAN.second <- pathStat(tscan.pseudo)[,2]
 
 # Discarding the offending cluster.
 discard <- "7"
@@ -478,9 +480,9 @@ A more precise determination of the identity of each pseudotime can be achieved 
 ```{r nest-pseudo-reordered, fig.width=10, fig.height=5, fig.cap=sprintf("_TSCAN_-derived pseudotimes around cluster %s in the Nestorowa HSC dataset. Each point is a cell in this cluster and is colored by its pseudotime value along the path to which it was assigned. The overlaid lines represent the relevant edges of the MST.", starter)}
 # Making a copy and giving the paths more friendly names.
 sub.nest <- sce.nest
-sub.nest$TSCAN.first <- tscan.pseudo2[,1]
-sub.nest$TSCAN.second <- tscan.pseudo2[,2]
-sub.nest$TSCAN.third <- tscan.pseudo2[,3]
+sub.nest$TSCAN.first <- pathStat(tscan.pseudo2)[,1]
+sub.nest$TSCAN.second <- pathStat(tscan.pseudo2)[,2]
+sub.nest$TSCAN.third <- pathStat(tscan.pseudo2)[,3]
 
 # Subsetting to the desired cluster containing the branch point.
 keep <- colLabels(sce.nest) == starter
@@ -569,9 +571,10 @@ allowing us to use the `patternTest()` function to test for significant differen
 ```{r}
 # Getting rid of the NA's; using the cell weights
 # to indicate which cell belongs on which path.
-nonna.pseudo <- tscan.pseudo
-nonna.pseudo[is.na(nonna.pseudo)] <- 0
-cell.weights <- !is.na(tscan.pseudo)
+nonna.pseudo <- pathStat(tscan.pseudo)
+not.on.path <- is.na(nonna.pseudo)
+nonna.pseudo[not.on.path] <- 0
+cell.weights <- !not.on.path
 storage.mode(cell.weights) <- "numeric"
 
 # Fitting a GAM on the subset of genes for speed.
