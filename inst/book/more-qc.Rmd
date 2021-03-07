@@ -1,0 +1,245 @@
+---
+output:
+  html_document
+bibliography: ref.bib
+---
+
+# Quality control, redux
+
+```{r setup, echo=FALSE, results="asis"}
+library(rebook)
+chapterPreamble()
+```
+
+## Overview
+
+`r link("quality-control", 'OSCA.basic')` introduced the concept of per-cell quality control,
+focusing on outlier detection to provide an adaptive threshold on our chosen QC metrics.
+This chapter elaborates on the technical details of outlier-based quality control,
+including some of the underlying assumptions, how to handle multi-batch experiments and diagnosing loss of cell types.
+We will again demonstrate using the 416B dataset from @lun2017assessing.
+
+```{r, results='asis', echo=FALSE}
+extractFromPackage("lun-416b.Rmd", package="OSCA.workflows",
+    chunk="loading", objects="sce.416b")
+```
+
+## The `isOutlier()` function 
+
+The `isOutlier()` function from the `r Biocpkg("scuttle")` package is the workhorse function for outlier detection.
+As previously mentioned, it will define an observation as an outlier if it is more than a specified number of MADs (default 3) from the median in the specified direction.
+
+```{r}
+library(AnnotationHub)
+ens.mm.v97 <- AnnotationHub()[["AH73905"]]
+chr.loc <- mapIds(ens.mm.v97, keys=rownames(sce.416b),
+    keytype="GENEID", column="SEQNAME")
+is.mito <- which(chr.loc=="MT")
+
+library(scuttle)
+df <- perCellQCMetrics(sce.416b, subsets=list(Mito=is.mito))
+low.lib <- isOutlier(df$sum, type="lower", log=TRUE)
+summary(low.lib)
+high.mito <- isOutlier(df$sum, type="higher")
+summary(high.mito)
+```
+
+The `perCellQCFilters()` function mentioned in `r link("quality-control", 'OSCA.basic')` is just a convenience wrapper around `isOutlier()`.
+Advanced users may prefer to use `isOutlier()` directly to achieve more control over the fields of `df` that are used for filtering.
+
+```{r}
+reasons <- perCellQCFilters(df, 
+    sub.fields=c("subsets_Mito_percent", "altexps_ERCC_percent"))
+stopifnot(identical(low.lib, reasons$low_lib_size))
+```
+
+We can also alter the directionality of the outlier detection, number of MADs used, as well as more advanced parameters related to batch processing (see Section \@ref(qc-batch)). 
+For example, we can remove both high and low outliers that are more than 5 MADs from the median.
+The output also contains the thresholds in the attributes for further perusal.
+
+```{r}
+low.lib2 <- isOutlier(df$sum, type="both", log=TRUE, nmads=5)
+attr(low.lib, "thresholds")
+```
+
+Incidentally, the `is.mito` code provides a demonstration of how to obtain the identity of the mitochondrial genes from the gene identifiers.
+The same approach can be used for gene symbols by simply setting `keytype="SYMBOL"`.
+
+```{r, echo=FALSE}
+location <- rowRanges(sce.416b)
+is.mito.alt <- any(seqnames(location)=="MT")
+stopifnot(identical(which(is.mito.alt), is.mito))
+```
+
+## Assumptions of outlier detection {#outlier-assumptions}
+
+Outlier detection assumes that most cells are of acceptable quality.
+This is usually reasonable and can be experimentally supported in some situations by visually checking that the cells are intact, e.g., on the microwell plate.
+If most cells are of (unacceptably) low quality, the adaptive thresholds will obviously fail as they cannot remove the majority of cells.
+Of course, what is acceptable or not is in the eye of the beholder - neurons, for example, are notoriously difficult to dissociate, and we would often retain cells in a neuronal scRNA-seq dataset with QC metrics that would be unacceptable in a more amenable system like embryonic stem cells.
+
+Another assumption mentioned earlier is that the QC metrics are independent of the biological state of each cell.
+This is most likely to be violated in highly heterogeneous cell populations where some cell types naturally have, e.g., less total RNA (see Figure 3A of @germain2020pipecomp) or more mitochondria.
+Such cells are more likely to be considered outliers and removed, even in the absence of any technical problems with their capture or sequencing.
+The use of the MAD mitigates this problem to some extent by accounting for biological variability in the QC metrics.
+A heterogeneous population should have higher variability in the metrics among high-quality cells, increasing the MAD and reducing the chance of incorrectly removing particular cell types (at the cost of reducing power to remove low-quality cells).
+
+In general, these assumptions are either reasonable or their violations have little effect on downstream conclusions.
+Nonetheless, it is helpful to keep them in mind when interpreting the results.
+
+## Considering experimental factors {#qc-batch}
+
+More complex studies may involve batches of cells generated with different experimental parameters (e.g., sequencing depth).
+In such cases, the adaptive strategy should be applied to each batch separately. 
+It makes little sense to compute medians and MADs from a mixture distribution containing samples from multiple batches.
+For example, if the sequencing coverage is lower in one batch compared to the others, it will drag down the median and inflate the MAD.
+This will reduce the suitability of the adaptive threshold for the other batches.
+
+If each batch is represented by its own `SingleCellExperiment`, the `perCellQCFilters()` function can be directly applied to each batch as previously described.
+However, if cells from all batches have been merged into a single `SingleCellExperiment`, the `batch=` argument should be used to ensure that outliers are identified _within_ each batch.
+By doing so, the outlier detection algorithm has the opportunity to account for systematic differences in the QC metrics across batches.
+Diagnostic plots are also helpful here: batches with systematically poor values for any metric can then be quickly identified for further troubleshooting or outright removal.
+
+We will again illustrate using the 416B dataset, which contains two experimental factors - plate of origin and oncogene induction status.
+We combine these factors together and use this in the `batch=` argument to `isOutlier()` via `quickPerCellQC()`.
+This results in the removal of slightly more cells as the MAD is no longer inflated by (i) systematic differences in sequencing depth between batches and (ii) differences in number of genes expressed upon oncogene induction.
+
+```{r}
+batch <- paste0(sce.416b$phenotype, "-", sce.416b$block)
+batch.reasons <- perCellQCFilters(df, batch=batch,
+    sub.fields=c("subsets_Mito_percent", "altexps_ERCC_percent"))
+colSums(as.matrix(batch.reasons))
+```
+
+```{r, echo=FALSE}
+stopifnot(all(colSums(as.matrix(batch.reasons)) >= colSums(as.matrix(reasons))))
+stopifnot(sum(as.matrix(batch.reasons)) >= sum(as.matrix(reasons)))
+```
+
+That said, the use of `batch=` involves the stronger assumption that most cells in each batch are of high quality.
+If an entire batch failed, outlier detection will not be able to act as an appropriate QC filter for that batch.
+For example, two batches in the @grun2016denovo human pancreas dataset contain a substantial proportion of putative damaged cells with higher ERCC content than the other batches (Figure \@ref(fig:qc-plot-pancreas)).
+This inflates the median and MAD within those batches, resulting in a failure to remove the assumed low-quality cells.
+In such cases, it is better to compute a shared median and MAD from the other batches and use those estimates to obtain an appropriate filter threshold for cells in the problematic batches, as shown below.
+
+```{r qc-plot-pancreas, fig.wide=TRUE, fig.asp=0.5, fig.cap="Distribution of the proportion of ERCC transcripts in each donor of the Grun pancreas dataset. Each point represents a cell and is coloured according to whether it was identified as an outlier within each batch (left) or using a common threshold (right)."}
+library(scRNAseq)
+sce.grun <- GrunPancreasData()
+sce.grun <- addPerCellQC(sce.grun)
+
+# First attempt with batch-specific thresholds.
+library(scater)
+discard.ercc <- isOutlier(sce.grun$altexps_ERCC_percent,
+    type="higher", batch=sce.grun$donor)
+with.blocking <- plotColData(sce.grun, x="donor", y="altexps_ERCC_percent",
+    colour_by=I(discard.ercc))
+
+# Second attempt, sharing information across batches
+# to avoid dramatically different thresholds for unusual batches.
+discard.ercc2 <- isOutlier(sce.grun$altexps_ERCC_percent,
+    type="higher", batch=sce.grun$donor,
+    subset=sce.grun$donor %in% c("D17", "D2", "D7"))
+without.blocking <- plotColData(sce.grun, x="donor", y="altexps_ERCC_percent",
+    colour_by=I(discard.ercc2))
+
+gridExtra::grid.arrange(with.blocking, without.blocking, ncol=2)
+```
+
+```{r, echo=FALSE}
+stopifnot(sum(discard.ercc,na.rm=TRUE)*2 <= sum(discard.ercc2, na.rm=TRUE))
+```
+
+To identify problematic batches, one useful rule of thumb is to find batches with QC thresholds that are _themselves_ outliers compared to the thresholds of other batches.
+The assumption here is that most batches consist of a majority of high quality cells such that the threshold value should follow some unimodal distribution across "typical" batches.
+If we observe a batch with an extreme threshold value, we may suspect that it contains a large number of low-quality cells that inflate the per-batch MAD.
+We demonstrate this process below for the @grun2016denovo data.
+
+```{r}
+ercc.thresholds <- attr(discard.ercc, "thresholds")["higher",]
+ercc.thresholds
+names(ercc.thresholds)[isOutlier(ercc.thresholds, type="higher")]
+```
+
+```{r, echo=FALSE}
+# Checking that this is consistent with the previous chunk.
+toss <- names(ercc.thresholds)[isOutlier(ercc.thresholds, type="higher")]
+suppressWarnings(discard.ercc3 <- isOutlier(sce.grun$altexps_ERCC_percent,
+    type="higher", batch=sce.grun$donor,
+    subset=!sce.grun$donor %in% toss))
+stopifnot(identical(discard.ercc2, discard.ercc3))
+```
+
+If we cannot assume that most batches contain a majority of high-quality cells, then all bets are off; we must revert to the approach of picking an arbitrary threshold value (`r link("fixed-qc", "OSCA.basic")`) based on some "sensible" prior expectations and hoping for the best.
+
+## Diagnosing cell type loss {#qc-discard-cell-types}
+
+The biggest practical concern during QC is whether an entire cell type is inadvertently discarded.
+There is always some risk of this occurring as the QC metrics are never fully independent of biological state.
+We can diagnose cell type loss by looking for systematic differences in gene expression between the discarded and retained cells.
+To demonstrate, we compute the average count across the discarded and retained pools in the 416B data set, and we compute the log-fold change between the pool averages.
+
+```{r}
+# Using the non-batched 'discard' vector for demonstration purposes,
+# as it has more cells for stable calculation of 'lost'.
+discard <- reasons$discard
+lost <- calculateAverage(counts(sce.416b)[,!discard])
+kept <- calculateAverage(counts(sce.416b)[,discard])
+
+library(edgeR)
+logged <- cpm(cbind(lost, kept), log=TRUE, prior.count=2)
+logFC <- logged[,1] - logged[,2]
+abundance <- rowMeans(logged)
+```
+
+If the discarded pool is enriched for a certain cell type, we should observe increased expression of the corresponding marker genes.
+No systematic upregulation of genes is apparent in the discarded pool in Figure \@ref(fig:discardplot416b), suggesting that the QC step did not inadvertently filter out a cell type in the 416B dataset.
+
+```{r discardplot416b, fig.cap="Log-fold change in expression in the discarded cells compared to the retained cells in the 416B dataset. Each point represents a gene with mitochondrial transcripts in blue."}
+plot(abundance, logFC, xlab="Average count", ylab="Log-FC (lost/kept)", pch=16)
+points(abundance[is.mito], logFC[is.mito], col="dodgerblue", pch=16)
+```
+
+For comparison, let us consider the QC step for the PBMC dataset from 10X Genomics [@zheng2017massively].
+We'll apply an arbitrary fixed threshold on the library size to filter cells rather than using any outlier-based method.
+Specifically, we remove all libraries with a library size below 500.
+
+```{r, results='asis', echo=FALSE}
+extractFromPackage("tenx-unfiltered-pbmc4k.Rmd", package="OSCA.workflows",
+    chunk="cell-detection", objects="sce.pbmc")
+```
+
+```{r}
+discard <- colSums(counts(sce.pbmc)) < 500
+lost <- calculateAverage(counts(sce.pbmc)[,discard])
+kept <- calculateAverage(counts(sce.pbmc)[,!discard])
+
+logged <- edgeR::cpm(cbind(lost, kept), log=TRUE, prior.count=2)
+logFC <- logged[,1] - logged[,2]
+abundance <- rowMeans(logged)
+```
+
+The presence of a distinct population in the discarded pool manifests in Figure \@ref(fig:discardplotpbmc) as a set of genes that are strongly upregulated in `lost`.
+This includes _PF4_, _PPBP_ and _SDPR_, which (spoiler alert!) indicates that there is a platelet population that has been discarded by `alt.discard`.
+
+```{r discardplotpbmc, fig.cap="Average counts across all discarded and retained cells in the PBMC dataset, after using a more stringent filter on the total UMI count. Each point represents a gene, with platelet-related genes highlighted in orange."}
+plot(abundance, logFC, xlab="Average count", ylab="Log-FC (lost/kept)", pch=16)
+platelet <- c("PF4", "PPBP", "SDPR")
+points(abundance[platelet], logFC[platelet], col="orange", pch=16)
+```
+
+If we suspect that cell types have been incorrectly discarded by our QC procedure, the most direct solution is to relax the QC filters for metrics that are associated with genuine biological differences.
+For example, outlier detection can be relaxed by increasing `nmads=` in the `isOutlier()` calls.
+Of course, this increases the risk of retaining more low-quality cells and encountering the problems discussed in `r link("quality-control-motivation", "OSCA.basic")`.
+The logical endpoint of this line of reasoning is to avoid filtering altogether, as discussed in `r link("quality-control-discarded", "OSCA.basic")`.
+
+As an aside, it is worth mentioning that the true technical quality of a cell may also be correlated with its type.
+(This differs from a correlation between the cell type and the QC metrics, as the latter are our imperfect proxies for quality.)
+This can arise if some cell types are not amenable to dissociation or microfluidics handling during the scRNA-seq protocol.
+In such cases, it is possible to "correctly" discard an entire cell type during QC if all of its cells are damaged.
+Indeed, concerns over the computational removal of cell types during QC are probably minor compared to losses in the experimental protocol.
+
+## Session Info {-}
+
+```{r sessionInfo, echo=FALSE, results='asis'}
+prettySessionInfo()
+```
