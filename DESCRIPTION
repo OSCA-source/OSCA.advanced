@@ -14,7 +14,8 @@ Description:
     multi-sample differential comparisons, doublet detection, cell cycle assignment, droplet-specific processing,
     nuclei-specific analyses, trajectory analyses, integrated analyses with protein abundances, and interactive visualization.
     It is intended for readers who are already familiar with basic single-cell analyses, possibly after reading some of the prior books in this collection.
-Depends: batchelor,
+Depends: AnnotationHub,
+    batchelor,
     BiocNeighbors,
     BiocParallel,
     BiocSingular,
