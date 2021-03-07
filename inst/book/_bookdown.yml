@@ -1,5 +1,5 @@
 book_filename: "OSCA.advanced"
-pagetitle: "Orchestrating Single-Cell Analysis with Bioconductor: Advanced"
+pagetitle: "Advanced Single-Cell Analysis with Bioconductor"
 delete_merged_file: true
 new_session: true
 language:
