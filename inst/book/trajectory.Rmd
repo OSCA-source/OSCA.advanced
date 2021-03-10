@@ -136,8 +136,7 @@ We set `outgroup=TRUE` to introduce an outgroup with an automatically determined
 which breaks up our previous MST into two components (Figure \@ref(fig:tscan-nest-omega)).
 
 ```{r tscan-nest-omega, fig.cap="Minimum spanning tree of the Nestorowa clusters after introducing an outgroup."}
-# TODO: https://github.com/LTLA/TrajectoryUtils/pull/3 to avoid having to set outscale.
-pseudo.og <- quickPseudotime(sce.nest, use.dimred="PCA", outgroup=TRUE, outscale=1.5)
+pseudo.og <- quickPseudotime(sce.nest, use.dimred="PCA", outgroup=TRUE)
 set.seed(10101)
 plot(pseudo.og$mst)
 ```
