@@ -28,7 +28,7 @@ This allows them to be used in workflows for exploratory analyses of scRNA-seq d
 To demonstrate, we will use two separate 10X Genomics PBMC datasets generated in two different batches.
 Each dataset was obtained from the `r Biocpkg("TENxPBMCData")` package and separately subjected to basic processing steps.
 Separate processing prior to the batch correction step is more convenient, scalable and (on occasion) more reliable.
-For example, outlier-based QC on the cells is more effective when performed within a batch (`r link("qc-batch", "OSCA.basic")`).
+For example, outlier-based QC on the cells is more effective when performed within a batch (Section \@ref(qc-batch)).
 The same can also be said for trend fitting when modelling the mean-variance relationship (`r link("variance-batch", "OSCA.basic")`).
 
 ```{r, results='asis', echo=FALSE}
