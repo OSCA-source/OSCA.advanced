@@ -582,9 +582,9 @@ tab <- head(tab.neural2, 10)
 stopifnot(all(!grepl("^Hb[ab]-", rownames(tab))))
 ```
 
-A softer approach is to simply report the average contaminating percentage for each gene in the table of DE statistics.
-This allows readers to make up their own minds as to whether a particular DEG's effect is driven by ambient contamination, in much the same way as described for low-quality cells in `r link("marking-qc", "OSCA.basic")`).
-Indeed, it is worth remembering that `maximumAmbience()` will report the maximum possible contamination rather than attempting to estimate the actual level of contamination, and filtering on the former may be overly conservative.
+A more relaxed approach is to simply report the average contaminating percentage for each gene in the table of DE statistics.
+This gives the analyst an opportunity to interpret the results in the appropriate biological context - for example, when choosing genes for follow-up studies, a moderate level of ambient contamination may be tolerated if the DEG is highly relevant.
+Indeed, it is worth remembering that `maximumAmbience()` will report the maximum possible contamination rather than attempting to estimate the actual level of contamination, so directly filtering on the former may be overly conservative.
 This is especially true for cell populations that are contributing to the differences in the ambient pool; in the most extreme case, the reported maximum contamination would be 100% for cell types with an expression profile that is identical to the ambient pool.
 
 ```{r}
