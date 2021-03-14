@@ -16,6 +16,7 @@ Description:
     It is intended for readers who are already familiar with basic single-cell analyses, possibly after reading some of the prior books in this collection.
 Depends: AnnotationHub,
     batchelor,
+    BiocFileCache,
     BiocNeighbors,
     BiocParallel,
     BiocSingular,
