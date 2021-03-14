@@ -8,6 +8,7 @@ language:
 output_dir: "docs"
 rmd_files: ["index.Rmd",
     "more-qc.Rmd",
+    "more-norm.Rmd",
     "data-integration.Rmd",
     "sample-comparisons.Rmd",
     "droplet-processing.Rmd",

@@ -1,0 +1,116 @@
+---
+output:
+  html_document
+bibliography: ref.bib
+---
+
+# Normalization, redux {#more-norm}
+
+```{r setup, echo=FALSE, results="asis"}
+library(rebook)
+chapterPreamble()
+```
+
+## Scaling and the pseudo-count
+
+When log-transforming, `logNormCounts()` will add a pseudo-count to avoid undefined values at zero.
+Larger pseudo-counts will shrink the log-fold changes between cells towards zero for low-abundance genes, meaning that downstream high-dimensional analyses will be driven more by differences in expression for high-abundance genes.
+Conversely, smaller pseudo-counts will increase the relative contribution of low-abundance genes.
+Common practice is to use a pseudo-count of 1, for the simple pragmatic reason that it preserves sparsity in the original matrix (i.e., zeroes in the input remain zeroes after transformation).
+This works well in all but the most pathological scenarios [@lun2018overcoming].
+
+An interesting subtlety of `logNormCounts()` is that it will center the size factors at unity.
+This puts both the pseudo-count and the normalized expression values on the same scale such that a pseudo-count of 1 can be interpreted as an extra read or UMI for each gene.
+In practical terms, centering means that the shrinkage effect of the pseudo-count diminishes as sequencing depth improves.
+This correctly ensures that estimates of the log-fold change in expression (e.g., from differences in the log-values between groups of cells) become increasingly accurate with deeper coverage.
+Conversely, at lower sequencing depths, stronger shrinkage avoids spuriously large log-fold changes between subpopulations. 
+
+For comparison, consider the situation where we applied a constant pseudo-count to some count-per-million-like measure.
+It is easy to see that the accuracy of the subsequent log-fold changes would never improve regardless of how much additional sequencing was performed.
+This is a cruel irony given that the whole intention of sequencing more deeply is to improve quantification of these differences between cell subpopulations. 
+The same criticism applies to popular metrics like the "counts-per-10K" used in, e.g., `r CRANpkg("seurat")`.
+
+## Downsampling instead of scaling 
+
+In rare cases, direct scaling of the counts is not appropriate due to the effect described by @lun2018overcoming.
+Briefly, this is caused by the fact that the mean of the log-normalized counts is not the same as the log-transformed mean of the normalized counts.
+The difference between them depends on the mean and variance of the original counts, such that there is a systematic trend in the mean of the log-counts with respect to the count size.
+This typically manifests as trajectories correlated strongly with library size even after library size normalization, as shown in Figure \@ref(fig:cellbench-lognorm-fail) for synthetic scRNA-seq data generated with a pool-and-split approach [@tian2019benchmarking].
+
+```{r cellbench-lognorm-fail, fig.wide=TRUE, fig.asp=0.5, fig.cap="PCA plot of all pool-and-split libraries in the SORT-seq CellBench data, computed from the log-normalized expression values with library size-derived size factors. Each point represents a library and is colored by the mixing ratio used to construct it (left) or by the size factor (right)."}
+# TODO: move to scRNAseq.
+library(BiocFileCache)
+bfc <- BiocFileCache(ask=FALSE)
+qcdata <- bfcrpath(bfc, "https://github.com/LuyiTian/CellBench_data/blob/master/data/mRNAmix_qc.RData?raw=true")
+
+env <- new.env()
+load(qcdata, envir=env)
+sce.8qc <- env$sce8_qc
+
+# Library size normalization and log-transformation.
+sce.8qc <- logNormCounts(sce.8qc)
+sce.8qc <- runPCA(sce.8qc)
+gridExtra::grid.arrange(
+    plotPCA(sce.8qc, colour_by=I(factor(sce.8qc$mix))),
+    plotPCA(sce.8qc, colour_by=I(librarySizeFactors(sce.8qc))),
+    ncol=2
+)
+```
+
+As the problem arises from differences in the sizes of the counts, the most straightforward solution is to downsample the counts of the high-coverage cells to match those of low-coverage cells.
+This uses the size factors to determine the amount of downsampling for each cell required to reach the 1st percentile of size factors.
+(The small minority of cells with smaller size factors are simply scaled up.
+We do not attempt to downsample to the smallest size factor, as this would result in excessive loss of information for one aberrant cell with very low size factors.)
+We can see that this eliminates the library size factor-associated trajectories from the first two PCs, improving resolution of the known differences based on mixing ratios (Figure \@ref(fig:cellbench-lognorm-downsample)).
+The log-transformation is still necessary but no longer introduces a shift in the means when the sizes of the counts are similar across cells.
+
+```{r cellbench-lognorm-downsample, fig.wide=TRUE, fig.asp=0.5, fig.cap="PCA plot of pool-and-split libraries in the SORT-seq CellBench data, computed from the log-transformed counts after downsampling in proportion to the library size factors. Each point represents a library and is colored by the mixing ratio used to construct it (left) or by the size factor (right)."}
+sce.8qc2 <- logNormCounts(sce.8qc, downsample=TRUE)
+sce.8qc2 <- runPCA(sce.8qc2)
+gridExtra::grid.arrange(
+    plotPCA(sce.8qc2, colour_by=I(factor(sce.8qc2$mix))),
+    plotPCA(sce.8qc2, colour_by=I(librarySizeFactors(sce.8qc2))),
+    ncol=2
+)
+```
+
+```{r, echo=FALSE, results="hide"}
+# Error checks for text above.
+sce.8qc$mix <- factor(sce.8qc$mix)
+sce.8qc$lsf <- log(librarySizeFactors(sce.8qc))
+original <- getExplanatoryPCs(sce.8qc, n_dimred=2, variables=c("lsf", "mix"))
+stopifnot(any(original[,"lsf"] > 80))
+
+sce.8qc2$mix <- factor(sce.8qc2$mix)
+sce.8qc2$lsf <- log(librarySizeFactors(sce.8qc2))
+downsampled <- getExplanatoryPCs(sce.8qc2, n_dimred=2, variables=c("lsf", "mix"))
+stopifnot(all(downsampled[,"lsf"] < 5))
+stopifnot(all(downsampled[,"mix"] > 90))
+```
+
+While downsampling is an expedient solution, it is statistically inefficient as it needs to increase the noise of high-coverage cells in order to avoid differences with low-coverage cells.
+It is also slower than simple scaling.
+Thus, we would only recommend using this approach after an initial analysis with scaled counts reveals suspicious trajectories that are strongly correlated with the size factors.
+In such cases, it is a simple matter to re-normalize by downsampling to determine whether the trajectory is an artifact of the log-transformation.
+
+## Comments on other transformations
+
+Of course, the log-transformation is not the only possible transformation. 
+Another somewhat common choice is the square root, motivated by the fact that it is the variance stabilizing transformation for Poisson-distributed counts.
+This assumes that counts are actually Poisson-distributed, which is true enough from the perspective of sequencing noise in UMI counts but ignores biological overdispersion.
+One may also see the inverse hyperbolic sine (a.k.a, arcsinh) transformation, which is very similar to the log-transformation when considering non-negative values.
+The main practical difference for scRNA-seq applications is a larger initial jump from zero to non-zero values.
+
+Alternatively, we may use more sophisticated approaches for variance stabilizing transformations in genomics data, e.g., `r Biocpkg("DESeq2")` or `r CRANpkg("sctransform")`.
+These aim to remove the mean-variance trend more effectively than the simpler transformations mentioned above, though it could be argued whether this is actually desirable. 
+For low-coverage scRNA-seq data, there will always be a mean-variance trend under any transformation, for the simple reason that the variance must be zero when the mean count is zero.
+These methods also face the challenge of removing the mean-variance trend while preserving the interesting component of variation, i.e., the log-fold changes between subpopulations;
+this may or may not be done adequately, depending on the aggressiveness of the algorithm.
+
+In practice, the log-transformation is a good default choice due to its simplicity and interpretability, and is what we will be using for all downstream analyses.
+
+## Session Info {-}
+
+```{r sessionInfo, echo=FALSE, results='asis'}
+prettySessionInfo()
+```
