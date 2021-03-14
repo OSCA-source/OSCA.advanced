@@ -132,7 +132,7 @@ abline(h=attr(discard.mito, "thresholds")["higher"], col="red")
 `emptyDrops()` already removes cells with very low library sizes or (by association) low numbers of expressed genes.
 Thus, further filtering on these metrics is not strictly necessary.
 It may still be desirable to filter on both of these metrics to remove non-empty droplets containing cell fragments or stripped nuclei that were not caught by the mitochondrial filter.
-However, this should be weighed against the risk of losing genuine cell types as discussed in `r link("outlier-assumptions", "OSCA.basic")`.
+However, this should be weighed against the risk of losing genuine cell types as discussed in Section \@ref(outlier-assumptions).
 
 Note that _CellRanger_ version 3 automatically performs cell calling using an algorithm similar to `emptyDrops()`.
 If we had started our analysis with the **filtered** count matrix, we could go straight to computing other QC metrics.
