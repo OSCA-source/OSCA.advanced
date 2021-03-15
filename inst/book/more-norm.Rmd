@@ -11,6 +11,12 @@ library(rebook)
 chapterPreamble()
 ```
 
+## Overview
+
+`r link("normalization", 'OSCA.basic')` introduced the principles and methodology for scaling normalization of scRNA-seq data.
+This chapter provides some commentary on some miscellaneous theoretical aspects
+including the motivation for the pseudo-count, the use and benefits of downsampling instead of scaling, and some discussion of alternative transformations.
+
 ## Scaling and the pseudo-count
 
 When log-transforming, `logNormCounts()` will add a pseudo-count to avoid undefined values at zero.
@@ -19,15 +25,34 @@ Conversely, smaller pseudo-counts will increase the relative contribution of low
 Common practice is to use a pseudo-count of 1, for the simple pragmatic reason that it preserves sparsity in the original matrix (i.e., zeroes in the input remain zeroes after transformation).
 This works well in all but the most pathological scenarios [@lun2018overcoming].
 
-An interesting subtlety of `logNormCounts()` is that it will center the size factors at unity.
-This puts both the pseudo-count and the normalized expression values on the same scale such that a pseudo-count of 1 can be interpreted as an extra read or UMI for each gene.
-In practical terms, centering means that the shrinkage effect of the pseudo-count diminishes as sequencing depth improves.
-This correctly ensures that estimates of the log-fold change in expression (e.g., from differences in the log-values between groups of cells) become increasingly accurate with deeper coverage.
-Conversely, at lower sequencing depths, stronger shrinkage avoids spuriously large log-fold changes between subpopulations. 
+An interesting subtlety of `logNormCounts()` is that it will center the size factors at unity, if they were not already.
+This puts the normalized expression values on roughly the same scale as the original counts for easier interpretation.
+For example, Figure \@ref(fig:zeisel-demo-snap25) shows that interneurons have a median _Snap25_ log-expression from 5-6;
+this roughly translates to an original count of 30-60 UMIs in each cell, which gives us some confidence that it is actually expressed.
+This relationship to the original data would be less obvious - or indeed, lost altogether - if the centering were not performed.
+
+```{r, echo=FALSE, results="asis"}
+extractFromPackage("zeisel-brain.Rmd", package="OSCA.workflows",
+    chunk="quality-control", objects="sce.zeisel")
+```
+
+```{r zeisel-demo-snap25, fig.cap="Distribution of log-expression values for _Snap25_ in each cell type of the Zeisel brain dataset."}
+library(scuttle)
+library(scater)
+sce.zeisel <- logNormCounts(sce.zeisel)
+plotExpression(sce.zeisel, x="level1class", features="Snap25", colour="level1class")
+```
+
+Centering also allows us to interpret a pseudo-count of 1 as an extra read or UMI for each gene.
+In practical terms, this means that the shrinkage effect of the pseudo-count diminishes as read/UMI counts increase.
+As a result, any estimates of log-fold changes in expression (e.g., from differences in the log-values between groups of cells) become increasingly accurate with deeper coverage.
+Conversely, at lower counts, stronger shrinkage avoids inflated differences due to sampling noise, which might otherwise mask interesting features in downstream analyses like clustering.
+In some sense, the pseudo-count aims to protect later analyses from the lack of information at low counts while trying to miminize its own effect at high counts. 
 
 For comparison, consider the situation where we applied a constant pseudo-count to some count-per-million-like measure.
-It is easy to see that the accuracy of the subsequent log-fold changes would never improve regardless of how much additional sequencing was performed.
-This is a cruel irony given that the whole intention of sequencing more deeply is to improve quantification of these differences between cell subpopulations. 
+It is easy to see that the accuracy of the subsequent log-fold changes would never improve regardless of how much additional sequencing was performed;
+scaling to a constant library size of a million means that the pseudo-count will have the same effect for all datasets.
+This is ironic given that the whole intention of sequencing more deeply is to improve quantification of these differences between cell subpopulations. 
 The same criticism applies to popular metrics like the "counts-per-10K" used in, e.g., `r CRANpkg("seurat")`.
 
 ## Downsampling instead of scaling 
@@ -98,7 +123,7 @@ In such cases, it is a simple matter to re-normalize by downsampling to determin
 Of course, the log-transformation is not the only possible transformation. 
 Another somewhat common choice is the square root, motivated by the fact that it is the variance stabilizing transformation for Poisson-distributed counts.
 This assumes that counts are actually Poisson-distributed, which is true enough from the perspective of sequencing noise in UMI counts but ignores biological overdispersion.
-One may also see the inverse hyperbolic sine (a.k.a, arcsinh) transformation, which is very similar to the log-transformation when considering non-negative values.
+One may also see the inverse hyperbolic sine (a.k.a, arcsinh) transformation being used on occasion, which is very similar to the log-transformation when considering non-negative values.
 The main practical difference for scRNA-seq applications is a larger initial jump from zero to non-zero values.
 
 Alternatively, we may use more sophisticated approaches for variance stabilizing transformations in genomics data, e.g., `r Biocpkg("DESeq2")` or `r CRANpkg("sctransform")`.
