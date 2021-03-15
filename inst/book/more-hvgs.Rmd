@@ -115,10 +115,9 @@ str(hvg.pbmc.cv2)
 Both the CV^2^ and the variance of log-counts are effective metrics for quantifying variation in gene expression.
 The CV^2^ tends to give higher rank to low-abundance HVGs driven by upregulation in rare subpopulations, for which the increase in variance on the raw scale is stronger than that on the log-scale.
 However, the variation described by the CV^2^ is less directly relevant to downstream procedures operating on the log-counts, and the reliance on the ratio can assign high rank to uninteresting genes with low absolute variance.
-We prefer the use of the variance of log-counts and will use it in the following sections 
-though many of the same principles apply to procedures based on the CV^2^.
+As such, we prefer to use the variance of log-counts for feature selection, though many of the same principles apply to procedures based on the CV^2^.
 
-## More HVG selection strateiges
+## More HVG selection strategies
 
 ### Keeping all genes above the trend {#feature-selection-positive}
 
