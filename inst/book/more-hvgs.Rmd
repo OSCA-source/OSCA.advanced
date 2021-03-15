@@ -49,8 +49,8 @@ legend("topleft", col=c("dodgerblue", "red"), legend=c("Default", "No weight"), 
 
 ## Handling covariates with linear models 
 
-The use of block-specific trends is the recommended approach for experiments with a single blocking factor.
-However, this is not practical for studies involving a large number of blocking factors and/or covariates.
+For experiments with multiple batches, the use of block-specific trends with `block=` in `modelGeneVar()` is the recommended approach for avoiding unwanted variation.
+However, this is not possible for experimental designs involving multiple unwanted factors of variation and/or continuous covariates.
 In such cases, we can use the `design=` argument to specify a design matrix with uninteresting factors of variation.
 This fits a linear model to the expression values for each gene to obtain the residual variance.
 We illustrate again with the 416B data set, blocking on the plate of origin and oncogene induction.
@@ -68,9 +68,12 @@ dec.design.416b[order(dec.design.416b$bio, decreasing=TRUE),]
 ```
 
 This strategy is simple but somewhat inaccurate as it does not consider the mean expression in each blocking level.
-Recall that the technical component is estimated as the fitted value of the trend at the average abundance for each gene.
-However, the true technical component is the average of the fitted values at the per-block means, which may be quite different for strong batch effects and non-linear mean-variance relationships.
-The `block=` approach is safer and should be preferred in all situations where it is applicable.
+To illustrate, assume we have an experiment with two equally-sized batches where the mean-variance trend in each batch is the same as that observed in Figure \@ref(fig:trend-plot-seger-noweight).
+Imagine that we have two genes with variances lying on this trend;
+the first gene has an average expression of 0 in one batch and 6 in the other batch,
+while the second gene with an average expression of 3 in both batches.
+Both genes would have the same mean across all cells but quite different variances, making it difficult to fit a single mean-variance trend - despite both genes following the mean-variance trend in each of their respective batches!
+The `block=` approach is safer as it handles the trend fitting and decomposition within each batch, and should be preferred in all situations where it is applicable.
 
 ## Using the coefficient of variation
 
