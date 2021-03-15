@@ -75,10 +75,11 @@ stopifnot(identical(which(is.mito.alt), is.mito))
 
 Outlier detection assumes that most cells are of acceptable quality.
 This is usually reasonable and can be experimentally supported in some situations by visually checking that the cells are intact, e.g., on the microwell plate.
-If most cells are of (unacceptably) low quality, the adaptive thresholds will obviously fail as they cannot remove the majority of cells.
+If most cells are of (unacceptably) low quality, the adaptive thresholds will fail as they cannot remove the majority of cells by definition -
+see Figure \@ref(fig:qc-plot-pancreas) below for a demonstrative example.
 Of course, what is acceptable or not is in the eye of the beholder - neurons, for example, are notoriously difficult to dissociate, and we would often retain cells in a neuronal scRNA-seq dataset with QC metrics that would be unacceptable in a more amenable system like embryonic stem cells.
 
-Another assumption mentioned earlier is that the QC metrics are independent of the biological state of each cell.
+Another assumption mentioned in `r link("quality-control", 'OSCA.basic')` is that the QC metrics are independent of the biological state of each cell.
 This is most likely to be violated in highly heterogeneous cell populations where some cell types naturally have, e.g., less total RNA (see Figure 3A of @germain2020pipecomp) or more mitochondria.
 Such cells are more likely to be considered outliers and removed, even in the absence of any technical problems with their capture or sequencing.
 The use of the MAD mitigates this problem to some extent by accounting for biological variability in the QC metrics.
@@ -120,9 +121,8 @@ That said, the use of `batch=` involves the stronger assumption that most cells 
 If an entire batch failed, outlier detection will not be able to act as an appropriate QC filter for that batch.
 For example, two batches in the @grun2016denovo human pancreas dataset contain a substantial proportion of putative damaged cells with higher ERCC content than the other batches (Figure \@ref(fig:qc-plot-pancreas)).
 This inflates the median and MAD within those batches, resulting in a failure to remove the assumed low-quality cells.
-In such cases, it is better to compute a shared median and MAD from the other batches and use those estimates to obtain an appropriate filter threshold for cells in the problematic batches, as shown below.
 
-```{r qc-plot-pancreas, fig.wide=TRUE, fig.asp=0.5, fig.cap="Distribution of the proportion of ERCC transcripts in each donor of the Grun pancreas dataset. Each point represents a cell and is coloured according to whether it was identified as an outlier within each batch (left) or using a common threshold (right)."}
+```{r qc-plot-pancreas, fig.wide=TRUE, fig.asp=0.5, fig.cap="Distribution of the proportion of ERCC transcripts in each donor of the Grun pancreas dataset. Each point represents a cell and is coloured according to whether it was identified as an outlier within each batch."}
 library(scRNAseq)
 sce.grun <- GrunPancreasData()
 sce.grun <- addPerCellQC(sce.grun)
@@ -131,18 +131,22 @@ sce.grun <- addPerCellQC(sce.grun)
 library(scater)
 discard.ercc <- isOutlier(sce.grun$altexps_ERCC_percent,
     type="higher", batch=sce.grun$donor)
-with.blocking <- plotColData(sce.grun, x="donor", y="altexps_ERCC_percent",
+plotColData(sce.grun, x="donor", y="altexps_ERCC_percent",
     colour_by=I(discard.ercc))
+```
 
+In such cases, it is better to compute a shared median and MAD from the other batches and use those estimates to obtain an appropriate filter threshold for cells in the problematic batches.
+This is automatically done by `isOutlier()` when we susbet to cells from those other batches, as shown in Figure \@ref(fig:qc-plot-pancreas-better). 
+
+```{r qc-plot-pancreas-better, fig.wide=TRUE, fig.asp=0.5, fig.cap="Distribution of the proportion of ERCC transcripts in each donor of the Grun pancreas dataset. Each point represents a cell and is coloured according to whether it was identified as an outlier, using a common threshold for the problematic batches."}
 # Second attempt, sharing information across batches
 # to avoid dramatically different thresholds for unusual batches.
 discard.ercc2 <- isOutlier(sce.grun$altexps_ERCC_percent,
     type="higher", batch=sce.grun$donor,
     subset=sce.grun$donor %in% c("D17", "D2", "D7"))
-without.blocking <- plotColData(sce.grun, x="donor", y="altexps_ERCC_percent",
-    colour_by=I(discard.ercc2))
 
-gridExtra::grid.arrange(with.blocking, without.blocking, ncol=2)
+plotColData(sce.grun, x="donor", y="altexps_ERCC_percent",
+    colour_by=I(discard.ercc2))
 ```
 
 ```{r, echo=FALSE}
