@@ -203,8 +203,9 @@ outlier-assumptions,quality-control-redux.html,1.3
 qc-batch,quality-control-redux.html,1.4
 qc-discard-cell-types,quality-control-redux.html,1.5
 fig:qc-plot-pancreas,quality-control-redux.html,1.1
-fig:discardplot416b,quality-control-redux.html,1.2
-fig:discardplotpbmc,quality-control-redux.html,1.3
+fig:qc-plot-pancreas-better,quality-control-redux.html,1.2
+fig:discardplot416b,quality-control-redux.html,1.3
+fig:discardplotpbmc,quality-control-redux.html,1.4
 single-nuclei-rna-seq-processing,single-nuclei-rna-seq-processing.html,9
 introduction-1,single-nuclei-rna-seq-processing.html,9.1
 quality-control-for-stripped-nuclei,single-nuclei-rna-seq-processing.html,9.2
