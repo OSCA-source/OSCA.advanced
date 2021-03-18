@@ -444,7 +444,7 @@ In some situations, we will already have performed within-batch analyses to char
 This is not uncommon when merging datasets from different sources where each dataset has already been analyzed, annotated and interpreted separately.
 It is subsequently desirable for the integration procedure to retain these "known interesting" aspects of each dataset in the merged dataset.
 We can encourage this outcome by using the marker genes within each dataset as our selected feature set for `fastMNN()` and related methods.
-This focuses on the relevant heterogeneity and represents a semi-supervised approach that is a natural extension of the strategy described in `r link("apriori-hvgs", "OSCA.basic")`.
+This focuses on the relevant heterogeneity and represents a semi-supervised approach that is a natural extension of the strategy described in Section \@ref(apriori-hvgs).
 
 To illustrate, we apply this strategy to our PBMC datasets.
 We identify the top marker genes from pairwise Wilcoxon ranked sum tests between every pair of clusters _within_ each batch, analogous to the method used by `r Biocpkg("SingleR")` (`r link("cell-type-annotation", "OSCA.basic")`).
