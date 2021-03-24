@@ -331,7 +331,7 @@ assayNames(altExp(sce))
 
 Unlike transcript-based counts, feature selection is largely unnecessary for analyzing ADT data.
 This is because feature selection has already occurred during experimental design where the manual choice of target proteins means that all ADTs correspond to interesting features by definition.
-In this particular dataset, we only have `r nrow(altExp(sce))` features so there is little scope for further filtering.
+In this particular dataset, we have fewer than 20 features so there is little scope for further filtering.
 Even larger datasets will only have 100-200 features - small numbers compared to our previous selections of 1000-5000 HVGs in Chapter \@ref(feature-selection).
 
 That said, larger datasets may benefit from a PCA step to compact the data from >100 ADTs to 10-20 PCs.
