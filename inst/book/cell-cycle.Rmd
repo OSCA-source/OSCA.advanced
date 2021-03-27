@@ -52,7 +52,7 @@ stopifnot(all(lfc[c("Ccna2", "Ccnb1", "Ccne1"),] < 0))
 ```
 
 We quantify these observations with standard DE methods (`r link("marker-detection", "OSCA.basic")`) to test for upregulation of each cyclin between clusters, which would imply that a subpopulation contains more cells in the corresponding cell cycle phase.
-The same logic applies to comparisons between treatment conditions as described in Chapter \@ref(multi-sample-comparisons).
+The same logic applies to comparisons between treatment conditions as described in `r link("multi-sample-comparisons", "OSCA.multisample")`.
 For example, we can infer that cluster 4 has the highest proportion of cells in the S and G2 phases based on higher expression of cyclins A2 and B1, respectively.
 
 ```{r}
@@ -248,7 +248,7 @@ Nonetheless, we will discuss some approaches for mitigating the cell cycle effec
 
 ### With linear regression and friends
 
-Here, we treat each phase as a separate batch and apply any of the batch correction strategies described in Chapter \@ref(integrating-datasets).
+Here, we treat each phase as a separate batch and apply any of the batch correction strategies described in `r link("integrating-datasets", "OSCA.multisample")`.
 The most common approach is to use a linear model to simply regress out any effect associated with the assigned phases, as shown below in Figure \@ref(fig:cell-cycle-regression) via `regressBatches()`.
 Similarly, any functions that support blocking can use the phase assignments as a blocking factor, e.g., `block=` in `modelGeneVarWithSpikes()`.
 
@@ -290,7 +290,7 @@ plotPCA(reg.nocycle2, colour_by=I(assignments$phases),
     point_size=3, shape_by=I(relabel)) + scaled
 ```
 
-The main assumption of regression is that the cell cycle is consistent across different aspects of cellular heterogeneity (Section \@ref(linear-regression)).
+The main assumption of regression is that the cell cycle is consistent across different aspects of cellular heterogeneity (`r link("linear-regression", "OSCA.multisample")`).
 In particular, we assume that each cell type contains the same distribution of cells across phases as well as a constant magnitude of the cell cycle effect on expression.
 Violations will lead to incomplete removal or, at worst, overcorrection that introduces spurious signal - even in the absence of any cell cycle effect!
 For example, if two subpopulations differ in their cell cycle phase distribution, regression will always apply a non-zero adjustment to all DE genes between those subpopulations.
@@ -298,7 +298,7 @@ For example, if two subpopulations differ in their cell cycle phase distribution
 If this type of adjustment is truly necessary, it is safest to apply it separately to the subset of cells in each cluster.
 This weakens the consistency assumptions as we do not require the same behavior across all cell types in the population.
 Alternatively, we could use other methods that are more robust to differences in composition (Figure \@ref(fig:cell-cycle-regression3)), though this becomes somewhat complicated if we want to correct for both cell cycle and batch at the same time.
-Gene-based analyses should use the uncorrected data with blocking where possible (Section \@ref(using-corrected-values)), which provides a sanity check that protects against distortions introduced by the adjustment.
+Gene-based analyses should use the uncorrected data with blocking where possible (`r link("using-corrected-values", "OSCA.multisample")`), which provides a sanity check that protects against distortions introduced by the adjustment.
 
 ```{r cell-cycle-regression3, fig.width=6, fig.height=4, fig.cap="Plot of the corrected PCs after applying `fastMNN()` with respect to the cell cycle phase assignments from `cyclone()` in the 416B dataset. Each point is a cell and is colored by its inferred phase and shaped by oncogene induction status."}
 set.seed(100011)

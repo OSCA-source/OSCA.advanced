@@ -145,7 +145,7 @@ plot(pseudo.og$mst)
 stopifnot(igraph::components(pseudo.og$mst)$no == 2)
 ```
 
-Another option is to construct the MST based on distances between mutual nearest neighbor (MNN) pairs between clusters (Section \@ref(performing-mnn-correction)).
+Another option is to construct the MST based on distances between mutual nearest neighbor (MNN) pairs between clusters (`r link("mnn-correction", "OSCA.multisample")`).
 This exploits the fact that MNN pairs occur at the boundaries of two clusters, with short distances between paired cells meaning that the clusters are "touching".
 In this mode, the MST focuses on the connectivity between clusters, which can be different from the shortest distance between centroids (Figure \@ref(fig:tscan-nest-mnn)).
 Consider, for example, a pair of elongated clusters that are immediately adjacent to each other.

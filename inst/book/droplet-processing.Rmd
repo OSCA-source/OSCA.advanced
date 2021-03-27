@@ -157,7 +157,7 @@ The `removeAmbience()` function from `r Biocpkg("DropletUtils")` will remove the
 Specifically, given a count matrix for a single sample and its associated ambient profile, `removeAmbience()` will:
 
 1. Aggregate counts in each cluster to obtain an average profile per cluster.
-2. Estimate the contamination proportion in each cluster with `maximumAmbience()` (see Section \@ref(ambient-problems)).
+2. Estimate the contamination proportion in each cluster with `maximumAmbience()` (see `r link("ambient-problems", "OSCA.multisample")`).
 This has the useful property of not requiring any prior knowledge of control or mutually exclusive expression profiles, albeit at the cost of some statistical rigor.
 3. Subtract the estimated contamination from the cluster-level average.
 4. Perform quantile-quantile mapping of each individual cell's counts from the old average to the new subtracted average.
@@ -239,7 +239,7 @@ Of course, one could repeat the entire analysis on the stripped count matrix to 
 Finally, it may be worth considering whether a corrected per-cell count matrix is really necessary.
 In `removeAmbience()`, counts for each gene are assumed to follow a negative binomial distribution with a fixed dispersion.
 This is necessary to perform the quantile-quantile remapping to obtain a corrected version of each individual cell's counts, but violations of these distributional assumptions will introduce inaccuracies in downstream models.
-Some analyses may have specific remedies to ambient contamination that do not require corrected per-cell counts (Section \@ref(ambient-problems)), so we can avoid these assumptions altogether if such remedies are available.
+Some analyses may have specific remedies to ambient contamination that do not require corrected per-cell counts (`r link("ambient-problems", "OSCA.multisample")`), so we can avoid these assumptions altogether if such remedies are available.
 
 ## Demultiplexing cell hashes {#cell-hashing}
 

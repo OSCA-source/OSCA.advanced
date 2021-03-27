@@ -93,7 +93,7 @@ gridExtra::grid.arrange(
 )    
 ```
 
-We can also apply more complex procedures such as batch correction (Section \@ref(integrating-datasets)).
+We can also apply more complex procedures such as batch correction (`r link("integrating-datasets", "OSCA.multisample")`).
 Here, we eliminate the disease effect to identify shared clusters (Figure \@ref(fig:nuclei-tsne-merged)).
 
 ```{r nuclei-tsne-merged, fig.width=10, fig.height=6, fig.cap="More $t$-SNE plots of the Wu kidney dataset after applying MNN correction across diseases."}
@@ -134,7 +134,7 @@ Interpretation of RNA velocity results may also be complicated by variation in t
 
 ## Tricks with ambient contamination {#nuclei-ambient-tricks}
 
-The expected absence of genuine mitochondrial expression can also be exploited to estimate the level of ambient contamination (Section \@ref(ambient-problems)).
+The expected absence of genuine mitochondrial expression can also be exploited to estimate the level of ambient contamination (`r link("ambient-problems", "OSCA.multisample")`).
 We demonstrate on mouse brain snRNA-seq data from 10X Genomics [@zheng2017massively], using the raw count matrix prior to any filtering for nuclei-containing barcodes.
 
 ```{r}

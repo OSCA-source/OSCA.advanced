@@ -15,7 +15,7 @@ jobs:
         run: |
           BiocManager::install('LTLA/rebook')
           rebook::updateDependencies("inst/book", path='DESCRIPTION', extra=c("Rtsne"))
-          rebook::configureBook(prefix="Advanced")
+          rebook::configureBook(prefix="Advanced", redirect='redirect')
         shell: Rscript {0}
       - name: Committing to master
         run: | 
