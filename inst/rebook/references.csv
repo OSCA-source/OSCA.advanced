@@ -157,6 +157,7 @@ overview-1,more-norm.html,2.1
 scaling-and-the-pseudo-count,more-norm.html,2.2
 downsampling-instead-of-scaling,more-norm.html,2.3
 comments-on-other-transformations,more-norm.html,2.4
+normalization-versus-batch-correction,more-norm.html,2.5
 fig:zeisel-demo-snap25,more-norm.html,2.1
 fig:cellbench-lognorm-fail,more-norm.html,2.2
 fig:cellbench-lognorm-downsample,more-norm.html,2.3
