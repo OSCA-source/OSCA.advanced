@@ -134,6 +134,20 @@ this may or may not be done adequately, depending on the aggressiveness of the a
 
 In practice, the log-transformation is a good default choice due to its simplicity and interpretability, and is what we will be using for all downstream analyses.
 
+## Normalization versus batch correction
+
+It is worth noting the difference between normalization and batch correction (`r link("integrating-datasets","OSCA.multisample")`).
+Normalization typically refers to removal of technical biases between cells, while batch correction involves removal of both technical biases and biological differences between batches.
+Technical biases are relatively simple and straightforward to remove, whereas biological differences between batches can be highly unpredictable.
+On the other hand, batch correction algorithms can share information between cells in the same batch, as all cells in the same batch are assumed to be subject to the same batch effect,
+whereas most normalization strategies tend to operate on a cell-by-cell basis with less information sharing. 
+
+The key point here is that normalization and batch correction are different tasks, involve different assumptions and generally require different computational methods 
+(though some packages aim to perform both steps at once, e.g., `r Biocpkg("zinbwave")`).
+Thus, it is important to distinguish between "normalized" and "batch-corrected" data, as these usually refer to different stages of processing.
+Of course, these processes are not exclusive, and most workflows will perform normalization _within_ each batch followed by correction _between_ batches.
+Interested readers are directed to `r link("integrating-datasets","OSCA.multisample")` for more details.
+
 ## Session Info {-}
 
 ```{r sessionInfo, echo=FALSE, results='asis'}
