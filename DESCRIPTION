@@ -1,7 +1,7 @@
 Package: OSCA.advanced
 Title: Advanced Single-Cell Analysis
-Version: 0.99.13
-Date: 2021-03-29
+Version: 0.99.14
+Date: 2021-04-02
 Authors@R: c( 
         person('Robert', 'Amezquita', role = c('aut')), 
         person('Aaron', 'Lun', role = c('aut', 'cre'), email="infinite.monkeys.with.keyboards@gmail.com"), 
@@ -10,9 +10,9 @@ Authors@R: c(
     )
 Description: 
     Deploys the advanced analysis chapters for the "Orchestrating Single Cell Analysis with Bioconductor" book.
-    This describes the more complex steps of a single-cell RNA-seq analysis, ranging from integration of multiple datasets,
-    multi-sample differential comparisons, doublet detection, cell cycle assignment, droplet-specific processing,
-    nuclei-specific analyses, trajectory analyses, integrated analyses with protein abundances, and interactive visualization.
+    This describes the more complex steps of a single-cell RNA-seq analysis ranging from doublet detection, cell cycle assignment, 
+    specific steps for processing droplet data, nuclei-specific analyses, trajectory analyses, integrated analyses with protein abundances, and interactive visualization.
+    It also elaborates on some of the basic analysis steps, focusing on alternative strategies and theoretical considerations.
     It is intended for readers who are already familiar with basic single-cell analyses, possibly after reading some of the prior books in this collection.
 Depends: AnnotationHub,
     batchelor,
