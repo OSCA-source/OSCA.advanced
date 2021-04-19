@@ -203,8 +203,8 @@ clust.louvain <- clusterCells(sce.pbmc, use.dimred="PCA",
 
 ### Identifying corresponding clusters
 
-The simplest approach for comparing two clusterings of the same dataset is to create a 2-dimensional table of label frequencies (Figure \@ref(fig:walktrap-v-others)).
-We can then identify how our Walktrap clusters from Section \@ref(clustering-graph) are redistributed when we switch to using Louvain community detection (Figure \@ref(fig:walktrap-v-louvain-prop)).
+The simplest approach for comparing two clusterings of the same dataset is to create a 2-dimensional table of label frequencies.
+We can then identify how our Walktrap clusters are redistributed when we switch to using Louvain community detection (Figure \@ref(fig:walktrap-v-louvain-prop)).
 Multiple non-zero entries along a row or column indicate that multiple clusters in one clustering are merged in the other clustering.
 
 ```{r walktrap-v-louvain-prop, fig.cap="Heatmap of the number of cells in each pair of clusters from Walktrap (rows) and Louvain clustering (columns) in the PBMC dataset."}
@@ -384,7 +384,7 @@ stopifnot(identical(best.k, 8L))
 ## Agglomerating graph communities
 
 Some community detection algorithms operate by agglomeration and thus can be used to construct a hierarchical dendrogram based on the pattern of merges between clusters.
-The dendrogram itself is not particularly informative as it simply describes the order of merge steps performed by the algorithm; unlike the dendrograms produced by hierarchical clustering (Section \@ref(hierarchical-clustering)), it does not capture the magnitude of differences between subpopulations.
+The dendrogram itself is not particularly informative as it simply describes the order of merge steps performed by the algorithm; unlike the dendrograms produced by hierarchical clustering (`r link("hierarchical-clustering", "OSCA.basic")`), it does not capture the magnitude of differences between subpopulations.
 However, it does provide a convenient avenue for manually tuning the clustering resolution by generating nested clusterings using the `cut_at()` function, as shown below.
 
 ```{r}
