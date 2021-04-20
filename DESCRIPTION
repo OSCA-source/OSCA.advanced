@@ -50,7 +50,8 @@ Depends: AnnotationHub,
     tradeSeq,
     TSCAN,
     velociraptor,
-    viridis
+    viridis,
+    densvis
 Imports: 
     OSCA.workflows
 Suggests: 

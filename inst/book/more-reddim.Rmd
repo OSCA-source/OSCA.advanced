@@ -412,6 +412,110 @@ That said, NMF can provide another perspective on our high-dimensional data that
 For example, we would hope that any identified clusters and marker genes would correspond to large values in the $W$ and $H$ matrices for the relevant factors.
 -->
 
+## Fast interpolation-based t-SNE
+
+While t-SNE is a very useful dimensionality reduction technique for single cell
+data, initial algorithms scale poorly with the number of cells. To this end,
+fast interpolation-based t-SNE (FIt-SNE) was developed [@linderman2019fitsne].
+This algorithm uses *interpolation nodes* to reduce the computational complexity
+of the calculations from $N\log N$ to $\sim 2 p N$. This algorithm is 
+implemented in `r Biocpkg("snifter")`, which calls the Python
+library [`openTSNE`](https://opentsne.readthedocs.io/) using 
+`r Biocpkg("basilisk")`. As Figure \@ref(fig:snifter-scater) shows, the 
+embeddings produced by this method are qualitatively similar to those produced
+by other algorithms; in fact, there
+@linderman2019fitsne demonstrate that the error with respect to the embeddings
+produced by previous t-SNE implementations is low and bounded.
+To use this method, we can simply set `use_fitsne=TRUE` when calling 
+`runTSNE` with `r Biocpkg("scater")`.
+
+
+```{r snifter-scater, fig.width=10, fig.height=6, fig.cap="FI-tSNE embedding and Barnes-Hut $t$-SNE embeddings for the Zeisel brain data."}
+library(snifter)
+
+sce.zeisel <- runTSNE(sce.zeisel)
+sce.zeisel <- runTSNE(sce.zeisel, use_fitsne = TRUE, name="FIt-SNE")
+
+gridExtra::grid.arrange(
+    plotReducedDim(sce.zeisel, "TSNE", colour_by="level1class") + ggtitle("t-SNE"),
+    plotReducedDim(sce.zeisel, "FIt-SNE", colour_by="level1class") + ggtitle("FIt-SNE"),
+    ncol=2
+)
+```
+
+Using `r Biocpkg("snifter")` directly, we can also take advantage of another
+feature of the `openTSNE` library. This library allows users to create an
+embedding and to project new points into this existing embedding.
+In this process, the existing points remain static, and new points are projected
+based on their affinities with each other and the points in the existing 
+embedding. In Figure \@ref(fig:snifter-embedding), it's clear that, in general,
+cells are projected near to cells of a similar type.
+This may be useful as a qualitative or exploratory step when combining 
+datasets, though should not be used as the basis for empirical results.
+
+```{r snifter-embedding, fig.width=8, fig.height=6, fig.cap="$t$-SNE embedding created with snifter, using 80% of the cells in the Zeisel brain data. The remaining 20% of the cells were projected into this pre-existing embedding."}
+ind_test <- as.logical(rbinom(ncol(sce.zeisel), 1, 0.2))
+ind_train <- !ind_test
+
+olddata <- reducedDim(sce.zeisel[, ind_train], "PCA")
+embedding <- fitsne(olddata)
+newdata <- reducedDim(sce.zeisel[, ind_test], "PCA")
+projected <- project(embedding, new = newdata, old = olddata)
+
+all <- rbind(embedding, projected)
+label <- c(sce.zeisel$level1class[ind_train], sce.zeisel$level1class[ind_test])
+
+ggplot() +
+    aes(all[, 1], all[, 2], col = factor(label), shape = ind_test) +
+    labs(x = "t-SNE 1", y = "t-SNE 2") +
+    geom_point(alpha = 0.5) +
+    scale_colour_brewer(palette = "Set2", name="level1class") +
+    theme_bw() +
+    scale_shape_manual(values = c(8, 19), name = "Set", labels = c("Training", "Test"))
+```
+
+## Density-preserving t-SNE and UMAP
+
+A potential downside of t-SNE and UMAP is that they preserve the neighbourhood
+structure of the data while neglecting the local density of the data.
+This can result in seemingly compact clusters on a t-SNE or UMAP
+plot that correspond to very heterogeneous groups in the original data.
+The algorithms dens-SNE and densMAP were introduced to improve this somewhat,
+by incorporating information about the average distance to the nearest
+neighbours when creating the embedding [@narayan2021densvis].
+Figures \@ref(fig:densne) and \@ref(fig:densmap) show that these methods provide
+more information about transcriptional heterogeneity within clusters,
+with astrocytes, endothelial and microglia clusters less compact in
+the density-preserving versions.
+This excessive compactness can imply a lower level of within-population
+heterogeneity.
+
+```{r densne, fig.width=10, fig.height=6, fig.cap="$t$-SNE and dens-SNE embeddings for the Zeisel brain data."}
+library(densvis)
+
+sce.zeisel <- runUMAP(sce.zeisel)
+dt <- densne(reducedDim(sce.zeisel, "PCA"), dens_frac = 0.4, dens_lambda = 0.2)
+reducedDim(sce.zeisel, "dens-SNE") <- dt
+dm <- densmap(reducedDim(sce.zeisel, "PCA"), dens_frac = 0.4, dens_lambda = 0.2)
+reducedDim(sce.zeisel, "densMAP") <- dm
+
+gridExtra::grid.arrange(
+    plotReducedDim(sce.zeisel, "TSNE", colour_by="level1class") + ggtitle("t-SNE"),
+    plotReducedDim(sce.zeisel, "dens-SNE", colour_by="level1class") + ggtitle("dens-SNE"),
+    ncol=2
+)
+```
+
+```{r densmap, fig.width=10, fig.height=6, fig.cap="UMAP and densMAP embeddings for the Zeisel brain data."}
+gridExtra::grid.arrange(
+    plotReducedDim(sce.zeisel, "UMAP", colour_by="level1class") + ggtitle("t-SNE"),
+    plotReducedDim(sce.zeisel, "densMAP", colour_by="level1class") + ggtitle("densMAP"),
+    ncol=2
+)
+```
+
+
+
 ## Session Info {-}
 
 ```{r sessionInfo, echo=FALSE, results='asis'}
