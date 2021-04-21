@@ -426,6 +426,7 @@ As Figure \@ref(fig:snifter-scater) shows, the embeddings produced by this metho
 supported by some theoretical results from @linderman2019fitsne showing that any difference from conventional $t$-SNE implementations is low and bounded.
 
 ```{r snifter-scater, fig.width=10, fig.height=6, fig.cap="FI-tSNE embedding and Barnes-Hut $t$-SNE embeddings for the Zeisel brain data."}
+set.seed(9000)
 sce.zeisel <- runTSNE(sce.zeisel)
 sce.zeisel <- runTSNE(sce.zeisel, use_fitsne = TRUE, name="FIt-SNE")
 
@@ -479,8 +480,22 @@ dm <- densmap(reducedDim(sce.zeisel, "PCA"), dens_frac = 0.4, dens_lambda = 0.2)
 reducedDim(sce.zeisel, "densMAP") <- dm
 ```
 
+
+```{r, echo=FALSE}
+ds <- reducedDim(sce.zeisel, "dens-SNE")
+ts <- reducedDim(sce.zeisel, "TSNE")
+
+vars_d <- colVars(ds[sce.zeisel$level1class == "astrocytes_ependymal", ])
+vars_t <- colVars(ts[sce.zeisel$level1class == "astrocytes_ependymal", ])
+stopifnot(mean(vars_d) > mean(vars_t))
+
+vars_d <- colVars(ds[sce.zeisel$level1class == "microglia", ])
+vars_t <- colVars(ts[sce.zeisel$level1class == "microglia", ])
+stopifnot(mean(vars_d) > mean(vars_t))
+```
+
 These methods provide more information about transcriptional heterogeneity within clusters (Figures \@ref(fig:densne) and \@ref(fig:densmap)),
-with the astrocytes, endothelial and microglia clusters being less compact in the density-preserving versions.
+with the astrocyte and microglia clusters being less compact in the density-preserving versions.
 This excessive compactness can imply a lower level of within-population heterogeneity.
 
 ```{r densne, fig.width=10, fig.height=6, fig.cap="$t$-SNE, UMAP, dens-SNE and densMAP embeddings for the Zeisel brain data."}
