@@ -478,28 +478,34 @@ dt <- densne(reducedDim(sce.zeisel, "PCA"), dens_frac = 0.4, dens_lambda = 0.2)
 reducedDim(sce.zeisel, "dens-SNE") <- dt
 dm <- densmap(reducedDim(sce.zeisel, "PCA"), dens_frac = 0.4, dens_lambda = 0.2)
 reducedDim(sce.zeisel, "densMAP") <- dm
+sce.zeisel <- runUMAP(sce.zeisel) # for comparison
 ```
 
 
 ```{r, echo=FALSE}
 ds <- reducedDim(sce.zeisel, "dens-SNE")
 ts <- reducedDim(sce.zeisel, "TSNE")
+du <- reducedDim(sce.zeisel, "dens-SNE")
+tu <- reducedDim(sce.zeisel, "TSNE")
+ds <- scale(ds)
+ts <- scale(ts)
+du <- scale(du)
+tu <- scale(tu)
 
 vars_d <- colVars(ds[sce.zeisel$level1class == "astrocytes_ependymal", ])
 vars_t <- colVars(ts[sce.zeisel$level1class == "astrocytes_ependymal", ])
 stopifnot(mean(vars_d) > mean(vars_t))
 
-vars_d <- colVars(ds[sce.zeisel$level1class == "microglia", ])
-vars_t <- colVars(ts[sce.zeisel$level1class == "microglia", ])
+vars_d <- colVars(du[sce.zeisel$level1class == "astrocytes_ependymal", ])
+vars_t <- colVars(tu[sce.zeisel$level1class == "astrocytes_ependymal", ])
 stopifnot(mean(vars_d) > mean(vars_t))
 ```
 
-These methods provide more information about transcriptional heterogeneity within clusters (Figures \@ref(fig:densne) and \@ref(fig:densmap)),
-with the astrocyte and microglia clusters being less compact in the density-preserving versions.
+These methods provide more information about transcriptional heterogeneity within clusters (Figure \@ref(fig:densne)),
+with the astrocyte cluster being less compact in the density-preserving versions.
 This excessive compactness can imply a lower level of within-population heterogeneity.
 
 ```{r densne, fig.width=10, fig.height=6, fig.cap="$t$-SNE, UMAP, dens-SNE and densMAP embeddings for the Zeisel brain data."}
-sce.zeisel <- runUMAP(sce.zeisel) # for comparison
 
 gridExtra::grid.arrange(
     plotReducedDim(sce.zeisel, "TSNE", colour_by="level1class") + ggtitle("t-SNE"),
