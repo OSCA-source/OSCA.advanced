@@ -29,7 +29,21 @@ colLabels(sce.pbmc) <- nn.clust$clusters
 sce.pbmc
 ```
 
-## Evaluating cluster separation
+## Quantifying clustering behavior
+
+### Motivation
+
+Several metrics are available to quantify the behavior of a clustering method, such as the silhouette width or graph modularity.
+These metrics are most helpful when they can be computed for each cluster, allowing us to prioritize certain clusters for more careful analysis.
+Poorly separated clusters can be prioritized for manual inspection to determine the relevance of the differences to its neighboring clusters,
+while heterogeneous clusters may be subject to further clustering to identify internal structure.
+We can also quantify the effect of different algorithms or parameter values, providing some insight into how our dataset responds to changes in the clustering method.
+
+As an aside: it is also possible to choose the clustering that optimizes for some of these metrics.
+This can be helpful to automatically obtain a "reasonable" clustering, though in practice, the clustering that yields the strongest separation often does not provide the most biological insight.
+Poorly separated clusters will often be observed in non-trivial analyses of scRNA-seq data where the aim is to characterize closely related subtypes or states.
+Indeed, the most well-separated clusters are rarely interesting as these describe obvious differences between known cell types.
+These diagnostics are best used to guide interpretation by highlighting clusters that require more investigation rather than to filter out "bad" clusters altogether.
 
 ### Silhouette width {#silhouette-width}
 
@@ -38,7 +52,7 @@ For each cell, we compute the average distance to all cells in the same cluster.
 We also compute the average distance to all cells in another cluster, taking the minimum of the averages across all other clusters.
 The silhouette width for each cell is defined as the difference between these two values divided by their maximum.
 Cells with large positive silhouette widths are closer to other cells in the same cluster than to cells in different clusters.
-Each cluster would ideally contain large positive silhouette widths, indicating that it is well-separated from other clusters.
+Thus, clusters with large positive silhouette widths are well-separated from other clusters.
 
 The silhouette width is a natural diagnostic for hierarchical clustering where the distance matrix is already available.
 For larger datasets, we instead use an approximate approach that uses the root of the average squared distances rather than the average distance itself.
@@ -62,37 +76,38 @@ ggplot(sil.data, aes(x=cluster, y=width, colour=closest)) +
 ```
 
 For a more detailed examination, we identify the closest neighboring cluster for each cell in each cluster.
-In the table below, each row corresponds to one cluster, and large counts indicate that its cells are easily confused with those from another cluster.
-This provides another perspective on the relationships between clusters. 
+In the table below, each row corresponds to one cluster; large off-diagonal counts indicate that its cells are easily confused with those from another cluster.
 
 ```{r}
 table(Cluster=colLabels(sce.pbmc), sil.data$closest)
 ```
 
-The average silhouette width across all cells can also be used to choose clustering parameters.
-The aim is to find the set of parameter values that maximizes the average silhouette width in order to obtain well-separated clusters.
-This can be helpful to automatically obtain a "reasonable" clustering, though in practice, the clustering that yields the strongest separation often does not provide the most biological insight.
-In fact, poorly separated clusters will often be observed in non-trivial analyses of scRNA-seq data
-where the aim is to characterize closely related subtypes or states.
-These diagnostics are best used to guide interpretation by highlighting clusters that require more investigation
-rather than to rule out poorly separated clusters altogether.
+A useful aspect of the silhouette width is that it naturally captures both underclustering and overclustering.
+Cells in heterogeneous clusters will have a large average distance to other cells in the same cluster;
+all else being equal, this will decrease their widths compared to cells in homogeneous clusters.
+Conversely, cells in overclustered datasets will have low average distances to cells in adjacent clusters, again resulting in low widths.
+One can exploit this to obtain a "sensible" initial choice for the number of clusters by maximizing the average silhouette width (Section \@ref(choosing-the-number-of-clusters)).
 
-<!--
 ### Cluster purity
 
-A related metric to assess cluster separation is the degree to which cells from multiple clusters intermingle in expression space.
-The "clustering purity" is defined for each cell as the proportion of neighboring cells that are assigned to the same cluster.
-Well-separated clusters should exhibit little intermingling and thus high purity values for all member cells,
-as demonstrated below in Figure \@ref(fig:pbmc-box-purities).
-Median purity values are consistently greater than 0.9,
+Another metric to assess cluster separation is the degree to which cells from multiple clusters intermingle in expression space.
+The "clustering purity" is defined for each cell as the proportion of neighboring cells that are assigned to the same cluster, 
+after some weighting to adjust for differences in the number of cells between clusteres.
+Well-separated clusters should exhibit little intermingling and thus high purity values for all member cells.
+
+```{r}
+pure.pbmc <- neighborPurity(reducedDim(sce.pbmc, "PCA"), colLabels(sce.pbmc))
+pure.pbmc
+```
+
+In Figure \@ref(fig:pbmc-box-purities), median purity values are consistently greater than 0.9,
 indicating that most cells in each cluster are primarily surrounded by other cells from the same cluster.
+Some clusters have low purity values that may warrant more careful inspection - these probably represent closely related subpopulations.
 
-```{r pbmc-box-purities, eval=FALSE, fig.wide=TRUE, fig.cap="Distribution of cluster purities across cells in each cluster of the PBMC dataset. Each point represents a cell and colored with the identity of the cluster contributing the largest proportion of its neighbors."}
-pure.pbmc <- neighborPurity(reducedDim(sce.pbmc, "PCA"), clusters=clust)
-
+```{r pbmc-box-purities, fig.wide=TRUE, fig.cap="Distribution of cluster purities across cells in each cluster of the PBMC dataset. Each point represents a cell and colored with the identity of the cluster contributing the largest proportion of its neighbors."}
 pure.data <- as.data.frame(pure.pbmc)
 pure.data$maximum <- factor(pure.data$maximum)
-pure.data$cluster <- factor(clust)
+pure.data$cluster <- colLabels(sce.pbmc)
 
 ggplot(pure.data, aes(x=cluster, y=purity, colour=maximum)) +
     ggbeeswarm::geom_quasirandom(method="smiley")
@@ -104,35 +119,45 @@ med.by.clust <- vapply(by.cluster, median, 0)
 stopifnot(all(med.by.clust > 0.9))
 ```
 
+To determine which clusters contaminate each other, we can identify the cluster with the most neighbors for each cell.
+In the table below, each row corresponds to one cluster; large off-diagonal counts indicate that its cells are easily confused with those from another cluster.
+
+```{r}
+table(Cluster=colLabels(sce.pbmc), pure.data$maximum)
+```
+
 The main difference between the cluster purity and silhouette width is that the former ignores the intra-cluster variance.
-This may or may not be desirable depending on what level of heterogeneity is of interest.
-In addition, the purity will - on average - only decrease with increasing cluster number/resolution,
-making it less effective for choosing between different clusterings.
-However, regardless of the chosen method, it is worth keeping in mind that poor separation is not synonymous with poor quality.
+This provides a simpler interpretation of cluster separation;
+a low silhouette width may still occur in well-separated clusters if the internal heterogeneity is high, while no such complication exists for the cluster purity.
+Comparing these two metrics can give us an indication of which clusters are heterogeneous, well-separated, or both.
 
 ### Within-cluster sum of squares
 
 The root-mean-squared-deviation (RMSD) for each cluster is defined pretty much as it is named - 
 the root of the mean of the squared differences from the cluster centroid, where the mean is computed across all cells in the cluster.
 It is closely related to the within-cluster sum of squares (WCSS) and is a natural diagnostic for $k$-means clustering, given that the algorithm aims to find a clustering that minimizes the WCSS.
-However, it can be computed for any set of clusters if the original coordinates are available.
+However, it can be computed for any set of clusters if the original coordinates are available (Figure \@ref(fig:rmsd-pbmc)).
 
-```{r, eval=FALSE}
-kmeans.info <- clusterCells(sce.pbmc, use.dimred="PCA", 
-    BLUSPARAM=KmeansParam(center=10), full=TRUE)
-clust.kmeans2 <- kmeans.info$objects
-
-# TODO: add bluster function to generate these statistics.
-ncells <- tabulate(clust.kmeans2$cluster)
-tab <- data.frame(wcss=clust.kmeans2$withinss, ncells=ncells)
-tab$rms <- sqrt(tab$wcss/tab$ncells)
-tab
+```{r rmsd-pbmc, fig.cap="RMSDs for each cluster in the PBMC dataset."}
+rmsd <- clusterRMSD(reducedDim(sce.pbmc, "PCA"), colLabels(sce.pbmc))
+barplot(rmsd, ylab="RMSD", xlab="Cluster")
 ```
 
-A cluster is more likely to have a low RMSD if it has no internal structure and is separated from other clusters.
-If two clusters are poorly separated, there is likely to be many cells on the boundaries between clusters, which would result in a higher sum of squares from the centroid.
-Thus, we can diagnose poorly-defined clusters as those with relatively large per-cluster RMSDs.
--->
+A large RMSD suggests that a cluster has some internal structure and should be prioritized for subclustering.
+Of course, this is subject to a number of caveats.
+Clusters generated from cells with low library sizes will naturally have larger RMSDs due to the greater impact of sequencing noise (Figure \@ref(fig:rmsd-pbmc-lib)).
+Immediately adjacent clusters may also have high RMSDs even if they are not heterogeneous. 
+This occurs when there are many cells on the boundaries between clusters, which would result in a higher sum of squares from the centroid.
+
+```{r rmsd-pbmc-lib, fig.cap="RMSDs for each cluster in the PBMC dataset as a function of the average size factor."}
+by.clust <- split(sizeFactors(sce.pbmc), colLabels(sce.pbmc))
+sf.by.clust <- vapply(by.clust, mean, 0)
+plot(rmsd, sf.by.clust, log="xy", pch=16, xlab="RMSD", ylab="Average size factor")
+```
+
+```{r, echo=FALSE}
+stopifnot(which.max(-sf.by.clust) == which.max(rmsd))
+```
 
 ### Using graph modularity
 
@@ -221,7 +246,7 @@ This normalizes for the differences in cluster abundance so that large clusters 
 Jaccard indices of 1 represent a perfect 1:1 mapping between a pair of clusters.
 
 ```{r walktrap-v-louvain-jaccard, fig.cap="Heatmap of the Jaccard indices comparing each Walktrap cluster (rows) to each Louvain cluster (columns) in the PBMC dataset."}
-jacc.mat <- linkClustersMatrix(clust.walktrap, clust.louvain, denominator="union")
+jacc.mat <- linkClustersMatrix(clust.walktrap, clust.louvain)
 rownames(jacc.mat) <- paste("Walktrap", rownames(jacc.mat))
 colnames(jacc.mat) <- paste("Louvain", colnames(jacc.mat))
 pheatmap(jacc.mat, color=viridis::viridis(100), cluster_cols=FALSE, cluster_rows=FALSE)
@@ -248,17 +273,14 @@ The idea is to obtain "clusters of clusters", allowing us to visualize the relat
 As the name suggests, `linkClusters()` is closely related to the output of the `linkClustersMatrix()` function;
 indeed, the latter simply returns part of the adjacency matrix used to create the graph in the former.
 
-```{r pbmc-graph-linked, fig.cap="Force-directed layout of the graph of the clusters obtained from different variants of community detection on the PBMC dataset."}
+```{r pbmc-graph-linked, fig.width=8, fig.height=8, fig.cap="Force-directed layout of the graph of the clusters obtained from different variants of community detection on the PBMC dataset. Each node represents a cluster obtained using one comunity detection method, with colored groupings representing clusters of clusters across different methods."}
 clust.infomap <- clusterCells(sce.pbmc, use.dimred="PCA", 
     BLUSPARAM=NNGraphParam(cluster.fun="infomap"))
 
-linked <- linkClusters(
-    list(
-        walktrap=clust.walktrap,
-        louvain=clust.louvain,
-        infomap=clust.infomap
-    ),
-    denominator="union"
+linked <- linkClusters(list(
+    walktrap=clust.walktrap,
+    louvain=clust.louvain,
+    infomap=clust.infomap)
 )
 linked
 
@@ -273,7 +295,7 @@ providing a convenient depiction of how clusters split apart (Figure \@ref(fig:w
 This approach is most effective when the clusterings exhibit a clear gradation in resolution
 but is less useful for comparisons involving theoretically distinct clustering procedures.
 
-```{r walktrap-res-clustree, fig.wide=TRUE, fig.width=10, fig.height=5, fig.cap="Graph of the relationships between the Walktrap clusterings of the PBMC dataset, generated with varying $k$ during the nearest-neighbor graph construction. (A higher $k$ generally corresponds to a lower resolution clustering.) The size of the nodes is proportional to the number of cells in each cluster, and the edges depict cells in one cluster that are reassigned to another cluster at a different resolution. The color of the edges is defined according to the number of reassigned cells and the opacity is defined from the corresponding proportion relative to the size of the lower-resolution cluster."}
+```{r walktrap-res-clustree, fig.width=15, fig.height=8, fig.cap="Graph of the relationships between the Walktrap clusterings of the PBMC dataset, generated with varying $k$ during the nearest-neighbor graph construction. (A higher $k$ generally corresponds to a lower resolution clustering.) The size of the nodes is proportional to the number of cells in each cluster, and the edges depict cells in one cluster that are reassigned to another cluster at a different resolution. The color of the edges is defined according to the number of reassigned cells and the opacity is defined from the corresponding proportion relative to the size of the lower-resolution cluster."}
 clust.5 <- clusterCells(sce.pbmc, use.dimred="PCA", BLUSPARAM=NNGraphParam(k=5))
 clust.10 <- clusterCells(sce.pbmc, use.dimred="PCA", BLUSPARAM=NNGraphParam(k=10))
 clust.50 <- clusterCells(sce.pbmc, use.dimred="PCA", BLUSPARAM=NNGraphParam(k=50))
