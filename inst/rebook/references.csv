@@ -61,10 +61,16 @@ using-the-technical-noise,dimensionality-reduction-redux.html,4.2.2
 based-on-population-structure,dimensionality-reduction-redux.html,4.2.3
 using-random-matrix-theory,dimensionality-reduction-redux.html,4.2.4
 count-based-dimensionality-reduction,dimensionality-reduction-redux.html,4.3
+more-visualization-methods,dimensionality-reduction-redux.html,4.4
+fast-interpolation-based-t-sne,dimensionality-reduction-redux.html,4.4.1
+density-preserving-t-sne-and-umap,dimensionality-reduction-redux.html,4.4.2
 fig:elbow,dimensionality-reduction-redux.html,4.1
 fig:cluster-pc-choice,dimensionality-reduction-redux.html,4.2
 fig:zeisel-parallel-pc-choice,dimensionality-reduction-redux.html,4.3
 fig:corral-sort,dimensionality-reduction-redux.html,4.4
+fig:snifter-scater,dimensionality-reduction-redux.html,4.5
+fig:snifter-embedding,dimensionality-reduction-redux.html,4.6
+fig:densne,dimensionality-reduction-redux.html,4.7
 doublet-detection,doublet-detection.html,7
 overview-4,doublet-detection.html,7.1
 doublet-detection-with-clusters,doublet-detection.html,7.2

@@ -23,6 +23,7 @@ Depends: AnnotationHub,
     bluster,
     clustree,
     corral,
+    densvis,
     DropletTestFiles,
     DropletUtils,
     edgeR,
@@ -47,12 +48,12 @@ Depends: AnnotationHub,
     scuttle,
     SingleR,
     slingshot,
+    snifter,
     TENxBrainData,
     tradeSeq,
     TSCAN,
     velociraptor,
-    viridis,
-    densvis
+    viridis
 Imports: 
     OSCA.workflows
 Suggests: 
