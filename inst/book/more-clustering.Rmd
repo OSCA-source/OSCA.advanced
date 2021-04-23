@@ -373,35 +373,67 @@ pheatmap(ratios, cluster_row=FALSE, cluster_col=FALSE,
 
 Bootstrapping is a general approach for evaluating cluster stability that is compatible with any clustering algorithm.
 The ARI-derived ratio between cluster pairs is also more informative than a single stability measure for all/each cluster as the former considers the relationships between clusters, e.g., unstable separation between $X$ and $Y$ does not penalize the stability of separation between $X$ and another cluster $Z$.
-Of course, one should take these metrics with a grain of salt, as bootstrapping only considers the effect of sampling noise and ignores other factors that affect reproducibility in an independent study (e.g., batch effects, donor variation).
+However, one should take these metrics with a grain of salt, as bootstrapping only considers the effect of sampling noise and ignores other factors that affect reproducibility in an independent study (e.g., batch effects, donor variation).
 In addition, it is possible for a poor separation to be highly stable, so highly stable cluster may not necessarily represent some distinct subpopulation.
 
-<!--
-## Choosing the number of clusters
+## Clustering parameter sweeps 
 
-This is the log-ratio of the expected to observed within-cluster sum of squares, where the expected value is computed by randomly distributing cells within the minimum bounding box of the original data.
-A larger gap statistic represents a lower observed sum of squares - and thus better clustering - compared to a population with no structure.
-Ideally, we would choose the $k$ that maximizes the gap statistic, but this is often unhelpful as the tendency of $k$-means to favor spherical clusters drives a large $k$ to capture different cluster shapes.
-Instead, we choose the most parsimonious $k$ beyond which the increases in the gap statistic are considered insignificant (Figure \@ref(fig:kmeans-gap)).
-It must be said, though, that this process is time-consuming and the resulting choice of $k$ is not always stable.
+The `clusterSweep()` function allows us to quickly apply our clustering with a range of different parameters.
+For example, we can iterate across different combinations of `k` and community detection algorithms for graph-based clustering.
+We could then use `linkClusters()`, `r CRANpkg("clustree")` or similar functions to visualize the relationships between different clusterings.
 
-```{r kmeans-gap, eval=FALSE, fig.cap="Gap statistic with respect to increasing number of $k$-means clusters in the 10X PBMC dataset. The red line represents the chosen $k$."}
-library(cluster)
-set.seed(110010101)
-gaps <- clusGap(reducedDim(sce.pbmc, "PCA"), kmeans, K.max=20)
-best.k <- maxSE(gaps$Tab[,"gap"], gaps$Tab[,"SE.sim"])
-best.k
+```{r}
+# Parallelizing for some speed.
+out <- clusterSweep(reducedDim(sce.pbmc, "PCA"), 
+    NNGraphParam(), 
+    k=as.integer(c(5, 10, 15, 20, 25, 30, 35, 40)),
+    cluster.fun=c("louvain", "walktrap", "infomap"),
+    BPPARAM=BiocParallel::MulticoreParam(8))
 
-plot(gaps$Tab[,"gap"], xlab="Number of clusters", ylab="Gap statistic")
-abline(v=best.k, col="red")
+colnames(out$clusters)
+table(out$clusters$k.5_cluster.fun.walktrap)
 ```
 
-```{r, eval=FALSE, echo=FALSE}
-# Check that the results are reasonable, as sometimes
-# the gap statistic gets funny stochastic results.
-stopifnot(identical(best.k, 8L))
+Parameter sweeps are particularly useful when combined with one of the metrics described in Section \@ref(quantifying-clustering-behavior).
+This provides a high-level summary of the behavior of the clustering method as the parameters change, as demonstrated in Figure \@ref(fig:graph-parameter-sweep).
+We can then make some decisions on which clustering(s) to use for further analyses.
+For example, we might choose a few clusterings that span several different resolutions, so as to obtain a greater diversity of summaries of the data;
+conversely, we might be able to save some time and effort by ignoring redundant clusterings with similar values for our metrics.
+
+```{r graph-parameter-sweep, fig.width=15, fig.height=5, fig.cap="Behavior of graph-based clustering as quantified by the number of clusters (left), silhouette width (middle) and the within-cluster sum of squares (right), in response to changes in the number of neighbors `k` and the community detection algorithm."}
+df <- as.data.frame(out$parameters)
+df$num.clusters <- vapply(as.list(out$clusters), function(cluster) { 
+    length(unique(cluster))
+}, 0L)
+
+all.sil <- lapply(as.list(out$clusters), function(cluster) {
+    sil <- approxSilhouette(reducedDim(sce.pbmc), cluster)
+    mean(sil$width)
+})
+df$silhouette <- unlist(all.sil)
+
+all.wcss <- lapply(as.list(out$clusters), function(cluster) {
+    sum(clusterRMSD(reducedDim(sce.pbmc), cluster, sum=TRUE), na.rm=TRUE)
+})
+df$wcss <- unlist(all.wcss)
+
+library(ggplot2)
+gridExtra::grid.arrange(
+    ggplot(df, aes(x=k, y=num.clusters, group=cluster.fun, color=cluster.fun)) + 
+        geom_line(lwd=2) + scale_y_log10(),
+    ggplot(df, aes(x=k, y=silhouette, group=cluster.fun, color=cluster.fun)) + 
+        geom_line(lwd=2),
+    ggplot(df, aes(x=k, y=wcss, group=cluster.fun, color=cluster.fun)) + 
+        geom_line(lwd=2),
+    ncol=3
+)
 ```
--->
+
+We could even use the sweep to automatically choose the "best" clustering by optimizing one or more of these metrics.
+The simplest strategy is to maximize the silhouette width, though one can imagine more complex scores involving combinations of metrics.
+This approach is valid but any automatic choice should be treated as a suggestion rather than a rule.
+As previously discussed, the clustering at the optimal value of a metric may not be the most scientifically informative clustering,
+given that well-separated clusters typically correspond to cell types that are already known. 
 
 ## Agglomerating graph communities
 
