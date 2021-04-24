@@ -335,7 +335,7 @@ i.e., there is some significant trend with respect to pseudotime.
 
 ```{r}
 library(TSCAN)
-pseudo <- testPseudotime(sce.nest, pseudotime=tscan.pseudo[,1])
+pseudo <- testPseudotime(sce.nest, pseudotime=tscan.pseudo[,1])[[1]]
 pseudo$SYMBOL <- rowData(sce.nest)$SYMBOL
 pseudo[order(pseudo$p.value),]
 ```
