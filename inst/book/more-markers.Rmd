@@ -1,0 +1,279 @@
+---
+output:
+  html_document
+bibliography: ref.bib
+---
+
+# Marker detection, redux 
+
+```{r setup, echo=FALSE, results="asis"}
+library(rebook)
+chapterPreamble()
+```
+
+## Motivation
+
+`r link("marker-detection", "OSCA.basic")` described the basic process of marker detection with pairwise comparisons between clusters.
+Here, we describe some of the properties of each effect size, how to use custom DE methods, and a few justifications for the omission of $p$-values from the marker detection process.
+
+## Properties of each effect size
+
+One property of the AUC is that it is symmetric with respect to differences in the size of the groups being compared.
+All else being equal, the genes with the largest AUCs on either side of a comparison will have similar expression profiles regardless of the number of cells in each group.
+In contrast, Cohen's $d$ will favor genes where the larger group has the smaller relative variance as this results in a lower pooled variance.
+This is not necessarily a bad outcome for marker detection, but it does require some thought to understand the differences in the expression profiles across groups of different sizes.
+Some of these effects are observed in a comparison between alpha and gamma cells in the human pancreas data set from @lawlor2017singlecell (Figure \@ref(fig:comparative-markers-tw)).
+
+```{r, eval=FALSE, echo=FALSE}
+# Checking out the relative symmetry of the Wilcoxon test:
+x <- runif(100)
+y <- runif(10, 0, 0.1)
+wilcox.test(x, y)$p.value
+t.test(x, y)$p.value
+
+x <- runif(10)
+y <- runif(100, 0, 0.1)
+wilcox.test(x, y)$p.value
+t.test(x, y)$p.value
+
+# When using the Welch test in the presence of unequal group sizes,
+# the d.f. has a maximum at a given fold-change 'x' for the variance between groups.
+N1 <- 20
+N2 <- 100
+curve((1/N1 + x/N2)/ (1/N1/(N1-1) + x^2/N2/(N2-1)), xlim=c(0, 100))
+
+# See the 'long story' for a case where a smaller AUC > 0.5 has a smaller p-value
+# due to the behavior of ties.
+```
+
+```{r, results='asis', echo=FALSE}
+extractFromPackage("lawlor-pancreas.Rmd", package="OSCA.workflows",
+    chunk="normalization", objects="sce.lawlor")
+```
+
+```{r comparative-markers-tw, fig.wide=TRUE, fig.asp=2, fig.cap="Distribution of expression values for alpha or gamma cell-specific markers in the GSE86469 human pancreas dataset. Each panel focuses on the genes that were uniquely ranked in the top 20 candidate markers by either the t-test or WMW test."}
+library(scran)
+subset <- sce.lawlor[,sce.lawlor$`cell type` %in% c("Alpha", "Gamma/PP")]
+marker.pancreas <- scoreMarkers(subset, groups=subset$`cell type`)
+
+# Upregulated in alpha:
+marker.alpha <- marker.pancreas$Alpha
+chosen.alpha.lfc <- rownames(marker.alpha)[head(order(marker.alpha$mean.logFC.cohen, decreasing=TRUE), 20)]
+chosen.alpha.auc <- rownames(marker.alpha)[head(order(marker.alpha$mean.AUC, decreasing=TRUE), 20)]
+u.alpha.lfc <- setdiff(chosen.alpha.lfc, chosen.alpha.auc)
+u.alpha.auc <- setdiff(chosen.alpha.auc, chosen.alpha.lfc)
+
+# Upregulated in gamma:
+marker.gamma <- marker.pancreas$`Gamma/PP`
+chosen.gamma.lfc <- rownames(marker.gamma)[head(order(marker.gamma$mean.logFC.cohen, decreasing=TRUE), 20)]
+chosen.gamma.auc <- rownames(marker.gamma)[head(order(marker.gamma$mean.AUC, decreasing=TRUE), 20)]
+u.gamma.lfc <- setdiff(chosen.gamma.lfc, chosen.gamma.auc)
+u.gamma.auc <- setdiff(chosen.gamma.auc, chosen.gamma.lfc)
+
+# Examining all uniquely detected markers in each direction.
+library(scater)
+gridExtra::grid.arrange(
+    plotExpression(subset, x="cell type", features=u.alpha.lfc, ncol=2) +
+        ggtitle("Upregulated in alpha, Cohen-only"),
+    plotExpression(subset, x="cell type", features=u.alpha.auc, ncol=2) +
+        ggtitle("Upregulated in alpha, AUC-only"),
+    plotExpression(subset, x="cell type", features=u.gamma.lfc, ncol=2) +
+        ggtitle("Upregulated in gamma, Cohen-only"),
+    plotExpression(subset, x="cell type", features=u.gamma.auc, ncol=2) +
+        ggtitle("Upregulated in gamma, AUC-only"),
+    ncol=2
+)
+```
+
+Cohen's $d$ is useful as it accounts for the magnitude of the change in expression.
+All else being equal, a gene with a larger log-fold change will have a larger Cohen's $d$ and be prioritized during marker ranking.
+By comparison, the relationship between the AUC and the log-fold change is less direct.
+A larger log-fold change implies stronger separation and will usually lead to a larger AUC, but only up to a point - 
+two perfectly separated distributions will have an AUC of 1 regardless of the difference in means (Figure \@ref(fig:simulated-auc-cohen)).
+This reduces the resolution of the ranking and makes it more difficult to distinguish between good and great markers.
+
+```{r simulated-auc-cohen, echo=FALSE, fig.width=8, fig.height=4, fig.cap="Distribution of log-expression values for two simulated genes in a pairwise comparison between clusters. Both genes have the same AUC of 1 but the first gene has a larger Cohen's $d$ than the second."}
+set.seed(100)
+y0 <- c(2^rnorm(100, 5))
+y1 <- 2^c(rnorm(100, 5, 0.8), rnorm(100, 1, 0.8))
+y <- rbind(c(y0, numeric(100)), y1)
+cluster <- rep(1:2, each=100)
+
+SCE <- SingleCellExperiment(list(counts=y))
+sizeFactors(SCE) <- rep(1, ncol(SCE))
+SCE <- logNormCounts(SCE)
+SCE$cluster <- factor(cluster)
+rownames(SCE) <- c("GENE_1", "GENE_2")
+
+plotExpression(SCE, x="cluster", rownames(SCE))
+```
+
+```{r, echo=FALSE}
+# Checking the trash talk.
+out <- scoreMarkers(SCE, SCE$cluster)
+first <- out[[1]]
+stopifnot(first$mean.logFC.cohen[1] > first$mean.logFC.cohen[2] + 1)
+stopifnot(first$mean.AUC[1] == first$mean.AUC[2])
+```
+
+The log-fold change in the detected proportions is specifically designed to look for on/off changes in expression patterns.
+It is relatively stringent compared to the AUC and Cohen's $d$, which this can lead to the loss of good candidate markers in general applications.
+For example, _GCG_ is a known marker for pancreatic alpha cells but is expressed in almost every other cell of the @lawlor2017singlecell pancreas data (Figure \@ref(fig:viol-gcg-lawlor)) and would not be highly ranked with `logFC.detected`.
+
+```{r viol-gcg-lawlor, fig.cap="Distribution of log-normalized expression values for _GCG_ across different pancreatic cell types in the Lawlor pancreas data."}
+plotExpression(sce.lawlor, x="cell type", features="ENSG00000115263")
+```
+
+All of these effect sizes have different interactions with log-normalization.
+For Cohen's $d$ on the log-expression values, we are directly subject to the effects described in @lun2018overcoming, which can lead to spurious differences between groups.
+Similarly, for the AUC, we can obtain unexpected results due to the fact that normalization only equalizes the means of two distributions and not their shape.
+The log-fold change in the detected proportions is completely unresponsive to scaling normalization, as a zero remains so after any scaling.
+However, this is not necessarily problematic for marker gene detection -
+users can interpret this effect as retaining information about the total RNA content, analogous to spike-in normalization in `r link("spike-norm", "OSCA.basic")`.
+
+## Using custom DE methods
+
+We can also detect marker genes from precomputed DE statistics, allowing us to take advantage of more sophisticated tests in other Bioconductor packages such as `r Biocpkg("edgeR")` and `r Biocpkg("DESeq2")`.
+This functionality is not commonly used - see below for an explanation - but nonetheless, we will demonstrate how one would go about applying it to the PBMC dataset.
+Our strategy is to loop through each pair of clusters, performing a more-or-less standard DE analysis between pairs using the `voom()` approach from the `r Biocpkg("limma")` package [@law2014voom].
+(Specifically, we use the TREAT strategy [@mccarthy2009treat] to test for log-fold changes that are significantly greater than 0.5.)
+
+```{r, results='asis', echo=FALSE}
+extractFromPackage("tenx-unfiltered-pbmc4k.Rmd", package="OSCA.workflows",
+    chunk="clustering", objects="sce.pbmc")
+```
+
+```{r}
+library(limma)
+dge <- convertTo(sce.pbmc)
+uclust <- unique(dge$samples$label)
+all.results <- all.pairs <- list()
+counter <- 1L
+
+for (x in uclust) {
+    for (y in uclust) {
+        if (x==y) break # avoid redundant comparisons.
+
+        # Factor ordering ensures that 'x' is the not the intercept,
+        # so resulting fold changes can be interpreted as x/y.
+        subdge <- dge[,dge$samples$label %in% c(x, y)]
+        subdge$samples$label <- factor(subdge$samples$label, c(y, x))
+        design <- model.matrix(~label, subdge$samples)
+
+        # No need to normalize as we are using the size factors
+        # transferred from 'sce.pbmc' and converted to norm.factors.
+        # We also relax the filtering for the lower UMI counts.
+        subdge <- subdge[calculateAverage(subdge$counts) > 0.1,]
+
+        # Standard voom-limma pipeline starts here.
+        v <- voom(subdge, design)
+        fit <- lmFit(v, design)
+        fit <- treat(fit, lfc=0.5)
+        res <- topTreat(fit, n=Inf, sort.by="none")
+
+        # Filling out the genes that got filtered out with NA's.
+        res <- res[rownames(dge),]
+        rownames(res) <- rownames(dge)
+
+        all.results[[counter]] <- res
+        all.pairs[[counter]] <- c(x, y)
+        counter <- counter+1L
+
+        # Also filling the reverse comparison.
+        res$logFC <- -res$logFC
+        all.results[[counter]] <- res
+        all.pairs[[counter]] <- c(y, x)
+        counter <- counter+1L
+    }
+}
+```
+
+For each comparison, we store the corresponding data frame of statistics in `all.results`, along with the identities of the clusters involved in `all.pairs`.
+We consolidate the pairwise DE statistics into a single marker list for each cluster with the `combineMarkers()` function, yielding a per-cluster `DataFrame` that can be interpreted in the same manner as discussed previously.
+We can also specify `pval.type=` and `direction=` to control the consolidation procedure, e.g., setting `pval.type="all"` and `direction="up"` will prioritize genes that are significantly upregulated in each cluster against _all_ other clusters.
+
+```{r}
+all.pairs <- do.call(rbind, all.pairs)
+combined <- combineMarkers(all.results, all.pairs, pval.field="P.Value")
+
+# Inspecting the results for one of the clusters.
+interesting.voom <- combined[["1"]]
+colnames(interesting.voom)
+head(interesting.voom[,1:4])
+```
+
+We do not routinely use custom DE methods to perform marker detection, for several reasons.
+Many of these methods rely on empirical Bayes shrinkage to share information across genes in the presence of limited replication.
+This is unnecessary when there are large numbers of "replicate" cells in each group, and does nothing to solve the fundamental $n=1$ problem in these comparisons (Section \@ref(false-replicates)).
+These methods also make stronger assumptions about the data (e.g., equal variances for linear models, the distribution of variances during empirical Bayes) that are more likely to be violated in noisy scRNA-seq contexts.
+From a practical perspective, they require more work to set up and take more time to run.
+
+That said, some custom methods (e.g., `r Biocpkg("MAST")`) may provide a useful point of difference from the simpler tests, in which case they can be converted into a marker detection scheme by modifing the above code.
+Indeed, the same code chunk can be directly applied (after switching back to the standard filtering and normalization steps inside the loop) to bulk RNA-seq experiments involving a large number of different conditions.
+This allows us to recycle the `r Biocpkg("scran")` machinery to consolidate results across many pairwise comparisons for easier interpretation.
+
+## Invalidity of $p$-values {#p-value-invalidity}
+
+### From data snooping
+
+Given that `scoreMarkers()` already reports effect sizes, it is tempting to take the next step and obtain $p$-values for the pairwise comparisons.
+Unfortunately, the $p$-values from the relevant tests cannot be reliably used to reject the null hypothesis.
+This is because DE analysis is performed on the same data used to obtain the clusters, which represents "data dredging" (also known as fishing or data snooping).
+The hypothesis of interest - are there differences between clusters? - is formulated from the data, so we are more likely to get a positive result when we re-use the data set to test that hypothesis.
+
+The practical effect of data dredging is best illustrated with a simple simulation.
+We simulate i.i.d. normal values, perform $k$-means clustering and test for DE between clusters of cells with `pairwiseTTests()`.
+The resulting distribution of $p$-values is heavily skewed towards low values (Figure \@ref(fig:pval-dist)).
+Thus, we can detect "significant" differences between clusters even in the absence of any real substructure in the data.
+This effect arises from the fact that clustering, by definition, yields groups of cells that are separated in expression space.
+Testing for DE genes between clusters will inevitably yield some significant results as that is how the clusters were defined.
+
+```{r pval-dist, fig.cap="Distribution of $p$-values from a DE analysis between two clusters in a simulation with no true subpopulation structure."}
+library(scran)
+set.seed(0)
+y <- matrix(rnorm(100000), ncol=200)
+clusters <- kmeans(t(y), centers=2)$cluster
+out <- pairwiseTTests(y, clusters)
+hist(out$statistics[[1]]$p.value, col="grey80", xlab="p-value", main="")
+```
+
+For marker gene detection, this effect is largely harmless as the $p$-values are used only for ranking.
+However, it becomes an issue when the $p$-values are used to claim some statistically significant separation between clusters.
+Indeed, the concept of statistical significance has no obvious meaning if the clusters are empirical and cannot be stably reproduced across replicate experiments.
+
+### Nature of replication {#false-replicates}
+
+The naive application of DE analysis methods will treat counts from the same cluster of cells as replicate observations.
+This is not the most relevant level of replication when cells are derived from the same biological sample (i.e., cell culture, animal or patient).
+DE analyses that treat cells as replicates fail to properly model the sample-to-sample variability [@lun2017overcoming].
+The latter is arguably the more important level of replication as different samples will necessarily be generated if the experiment is to be replicated.
+Indeed, the use of cells as replicates only masks the fact that the sample size is actually one in an experiment involving a single biological sample.
+This reinforces the inappropriateness of using the marker gene $p$-values to perform statistical inference.
+
+Once subpopulations are identified, it is prudent to select some markers for use in validation studies with an independent replicate population of cells.
+A typical strategy is to identify a corresponding subset of cells that express the upregulated markers and do not express the downregulated markers.
+Ideally, a different technique for quantifying expression would also be used during validation, e.g., fluorescent _in situ_ hybridisation or quantitative PCR.
+This confirms that the subpopulation genuinely exists and is not an artifact of the scRNA-seq protocol or the computational analysis.
+
+## Further comments
+
+One consequence of the DE analysis strategy is that markers are defined relative to subpopulations in the same dataset.
+Biologically meaningful genes will not be detected if they are expressed uniformly throughout the population, e.g., T cell markers will not be detected if only T cells are present in the dataset.
+In practice, this is usually only a problem when the experimental data are provided without any biological context - certainly, we would hope to have some _a priori_ idea about what cells have been captured.
+For most applications, it is actually desirable to avoid detecting such genes as we are interested in characterizing heterogeneity  within the context of a known cell population.
+Continuing from the example above, the failure to detect T cell markers is of little consequence if we already know we are working with T cells.
+Nonetheless, if "absolute" identification of cell types is desired, some strategies for doing so are described in `r link("cell-type-annotation", "OSCA.basic")`.
+
+Alternatively, marker detection can be performed by treating gene expression as a predictor variable for cluster assignment.
+For a pair of clusters, we can find genes that discriminate between them by performing inference with a logistic model where the outcome for each cell is whether it was assigned to the first cluster and the lone predictor is the expression of each gene.
+Treating the cluster assignment as the dependent variable is more philosophically pleasing in some sense, as the clusters are indeed defined from the expression data rather than being known in advance.
+(Note that this does not solve the data snooping problem.)
+In practice, this approach effectively does the same task as a Wilcoxon rank sum test in terms of quantifying separation between clusters.
+Logistic models have the advantage in that they can easily be extended to block on multiple nuisance variables, though this is not typically necessary in most use cases.
+Even more complex strategies use machine learning methods to determine which features contribute most to successful cluster classification, but this is probably unnecessary for routine analyses.
+
+## Session information {-}
+
+```{r}
+sessionInfo()
+```
