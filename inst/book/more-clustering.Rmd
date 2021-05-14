@@ -86,7 +86,7 @@ A useful aspect of the silhouette width is that it naturally captures both under
 Cells in heterogeneous clusters will have a large average distance to other cells in the same cluster;
 all else being equal, this will decrease their widths compared to cells in homogeneous clusters.
 Conversely, cells in overclustered datasets will have low average distances to cells in adjacent clusters, again resulting in low widths.
-One can exploit this to obtain a "sensible" initial choice for the number of clusters by maximizing the average silhouette width (Section \@ref(choosing-the-number-of-clusters)).
+One can exploit this to obtain a "sensible" initial choice for the number of clusters by maximizing the average silhouette width (Section \@ref(clustering-paramter-sweeps)).
 
 ### Cluster purity
 

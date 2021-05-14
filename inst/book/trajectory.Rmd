@@ -553,7 +553,7 @@ a gene that is significantly upregulated in each of two paths but with a sharper
 ### Further comments
 
 The magnitudes of the $p$-values reported here should be treated with some skepticism.
-The same fundamental problems discussed in `r link("p-value-invalidity", "OSCA.basic")` remain;
+The same fundamental problems discussed in Section \@ref(p-value-invalidity) remain;
 the $p$-values are computed from the same data used to define the trajectory,
 and there is only a sample size of 1 in this analysis regardless of the number of cells.
 Nonetheless, the $p$-value is still useful for prioritizing interesting genes 
