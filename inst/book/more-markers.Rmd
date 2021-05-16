@@ -18,100 +18,84 @@ Here, we describe some of the properties of each effect size, how to use custom 
 
 ## Properties of each effect size
 
-One property of the AUC is that it is symmetric with respect to differences in the size of the groups being compared.
-All else being equal, the genes with the largest AUCs on either side of a comparison will have similar expression profiles regardless of the number of cells in each group.
-In contrast, Cohen's $d$ will favor genes where the larger group has the smaller relative variance as this results in a lower pooled variance.
-This is not necessarily a bad outcome for marker detection, but it does require some thought to understand the differences in the expression profiles across groups of different sizes.
-Some of these effects are observed in a comparison between alpha and gamma cells in the human pancreas data set from @lawlor2017singlecell (Figure \@ref(fig:comparative-markers-tw)).
+One of the AUC's advantages is its robustness to the shape of the distribution of expression values within each cluster.
+A gene is not penalized for having a large variance so long as it does not compromise the separation between clusters.
+This property is demonstrated in Figure \@ref(fig:simulated-outliers-auc-cohen), where the AUC is not affected by the presence of an outlier subpopulation in cluster 1.
+By comparison, Cohen's $d$ decreases in the second gene, despite the fact that the outlier subpopulation does not affect the interpretation of the difference between clusters.
 
-```{r, eval=FALSE, echo=FALSE}
-# Checking out the relative symmetry of the Wilcoxon test:
-x <- runif(100)
-y <- runif(10, 0, 0.1)
-wilcox.test(x, y)$p.value
-t.test(x, y)$p.value
-
-x <- runif(10)
-y <- runif(100, 0, 0.1)
-wilcox.test(x, y)$p.value
-t.test(x, y)$p.value
-
-# When using the Welch test in the presence of unequal group sizes,
-# the d.f. has a maximum at a given fold-change 'x' for the variance between groups.
-N1 <- 20
-N2 <- 100
-curve((1/N1 + x/N2)/ (1/N1/(N1-1) + x^2/N2/(N2-1)), xlim=c(0, 100))
-
-# See the 'long story' for a case where a smaller AUC > 0.5 has a smaller p-value
-# due to the behavior of ties.
-```
-
-```{r, results='asis', echo=FALSE}
-extractFromPackage("lawlor-pancreas.Rmd", package="OSCA.workflows",
-    chunk="normalization", objects="sce.lawlor")
-```
-
-```{r comparative-markers-tw, fig.wide=TRUE, fig.asp=2, fig.cap="Distribution of expression values for alpha or gamma cell-specific markers in the GSE86469 human pancreas dataset. Each panel focuses on the genes that were uniquely ranked in the top 20 candidate markers by either the t-test or WMW test."}
-library(scran)
-subset <- sce.lawlor[,sce.lawlor$`cell type` %in% c("Alpha", "Gamma/PP")]
-marker.pancreas <- scoreMarkers(subset, groups=subset$`cell type`)
-
-# Upregulated in alpha:
-marker.alpha <- marker.pancreas$Alpha
-chosen.alpha.lfc <- rownames(marker.alpha)[head(order(marker.alpha$mean.logFC.cohen, decreasing=TRUE), 20)]
-chosen.alpha.auc <- rownames(marker.alpha)[head(order(marker.alpha$mean.AUC, decreasing=TRUE), 20)]
-u.alpha.lfc <- setdiff(chosen.alpha.lfc, chosen.alpha.auc)
-u.alpha.auc <- setdiff(chosen.alpha.auc, chosen.alpha.lfc)
-
-# Upregulated in gamma:
-marker.gamma <- marker.pancreas$`Gamma/PP`
-chosen.gamma.lfc <- rownames(marker.gamma)[head(order(marker.gamma$mean.logFC.cohen, decreasing=TRUE), 20)]
-chosen.gamma.auc <- rownames(marker.gamma)[head(order(marker.gamma$mean.AUC, decreasing=TRUE), 20)]
-u.gamma.lfc <- setdiff(chosen.gamma.lfc, chosen.gamma.auc)
-u.gamma.auc <- setdiff(chosen.gamma.auc, chosen.gamma.lfc)
-
-# Examining all uniquely detected markers in each direction.
-library(scater)
-gridExtra::grid.arrange(
-    plotExpression(subset, x="cell type", features=u.alpha.lfc, ncol=2) +
-        ggtitle("Upregulated in alpha, Cohen-only"),
-    plotExpression(subset, x="cell type", features=u.alpha.auc, ncol=2) +
-        ggtitle("Upregulated in alpha, AUC-only"),
-    plotExpression(subset, x="cell type", features=u.gamma.lfc, ncol=2) +
-        ggtitle("Upregulated in gamma, Cohen-only"),
-    plotExpression(subset, x="cell type", features=u.gamma.auc, ncol=2) +
-        ggtitle("Upregulated in gamma, AUC-only"),
-    ncol=2
-)
-```
-
-Cohen's $d$ is useful as it accounts for the magnitude of the change in expression.
-All else being equal, a gene with a larger log-fold change will have a larger Cohen's $d$ and be prioritized during marker ranking.
-By comparison, the relationship between the AUC and the log-fold change is less direct.
-A larger log-fold change implies stronger separation and will usually lead to a larger AUC, but only up to a point - 
-two perfectly separated distributions will have an AUC of 1 regardless of the difference in means (Figure \@ref(fig:simulated-auc-cohen)).
-This reduces the resolution of the ranking and makes it more difficult to distinguish between good and great markers.
-
-```{r simulated-auc-cohen, echo=FALSE, fig.width=8, fig.height=4, fig.cap="Distribution of log-expression values for two simulated genes in a pairwise comparison between clusters. Both genes have the same AUC of 1 but the first gene has a larger Cohen's $d$ than the second."}
+```{r simulated-outliers-auc-cohen, echo=FALSE, fig.width=8, fig.height=4, fig.cap="Distribution of log-expression values for two simulated genes in a pairwise comparison between clusters, in the scenario where the second gene is highly expressed in a subpopulation of cluster 1."}
 set.seed(100)
-y0 <- c(2^rnorm(100, 5))
-y1 <- 2^c(rnorm(100, 5, 0.8), rnorm(100, 1, 0.8))
-y <- rbind(c(y0, numeric(100)), y1)
+y0 <- c(rnorm(100, 3), rnorm(100, 1))
+y1 <- y0
+y1[1:10] <- rnorm(10, 10)
+y <- 2^rbind(y0, y1)
 cluster <- rep(1:2, each=100)
 
+library(scater)
 SCE <- SingleCellExperiment(list(counts=y))
 sizeFactors(SCE) <- rep(1, ncol(SCE))
 SCE <- logNormCounts(SCE)
 SCE$cluster <- factor(cluster)
 rownames(SCE) <- c("GENE_1", "GENE_2")
 
-plotExpression(SCE, x="cluster", rownames(SCE))
+library(scran)
+out <- scoreMarkers(SCE, SCE$cluster)
+first <- out[[1]]
+
+gridExtra::grid.arrange(
+    plotExpression(SCE, x="cluster", rownames(SCE)[1]) + 
+        annotate("text", label=sprintf("Cohen's d: %.2f, AUC: %.2f",
+            first$mean.logFC.cohen[1],  first$mean.AUC[1]),
+            x=Inf, y=Inf, hjust=1, vjust=1.5),
+    plotExpression(SCE, x="cluster", rownames(SCE)[2]) +
+        annotate("text", label=sprintf("Cohen's d: %.2f, AUC: %.2f",
+            first$mean.logFC.cohen[2],  first$mean.AUC[2]),
+            x=Inf, y=Inf, hjust=1, vjust=1.5),
+    ncol=2
+)
+```
+
+On the other hand, Cohen's $d$ accounts for the magnitude of the change in expression.
+All else being equal, a gene with a larger log-fold change will have a larger Cohen's $d$ and be prioritized during marker ranking.
+By comparison, the relationship between the AUC and the log-fold change is less direct.
+A larger log-fold change implies stronger separation and will usually lead to a larger AUC, but only up to a point - 
+two perfectly separated distributions will have an AUC of 1 regardless of the difference in means (Figure \@ref(fig:simulated-cap-auc-cohen)).
+This reduces the resolution of the ranking and makes it more difficult to distinguish between good and very good markers.
+
+```{r simulated-cap-auc-cohen, echo=FALSE, fig.width=8, fig.height=4, fig.cap="Distribution of log-expression values for two simulated genes in a pairwise comparison between clusters, in the scenario where both genes are upregulated in cluster 1 but by different magnitudes."}
+set.seed(100)
+y0 <- c(2^rnorm(100, 5))
+y1 <- 2^c(rnorm(100, 1, 0.1), rnorm(100, 0.5))
+y1[1:100] <- y1[1:100] / min(y1[1:100]) * max(y1[101:200]) * 1.05
+y <- rbind(c(y0, numeric(100)), y1)
+cluster <- rep(1:2, each=100)
+
+library(scater)
+SCE <- SingleCellExperiment(list(counts=y))
+sizeFactors(SCE) <- rep(1, ncol(SCE))
+SCE <- logNormCounts(SCE)
+SCE$cluster <- factor(cluster)
+rownames(SCE) <- c("GENE_1", "GENE_2")
+
+library(scran)
+out <- scoreMarkers(SCE, SCE$cluster)
+first <- out[[1]]
+
+gridExtra::grid.arrange(
+    plotExpression(SCE, x="cluster", rownames(SCE)[1]) + 
+        annotate("text", label=sprintf("Cohen's d: %.2f, AUC: %.2f",
+            first$mean.logFC.cohen[1],  first$mean.AUC[1]),
+            x=Inf, y=Inf, hjust=1, vjust=1.5),
+    plotExpression(SCE, x="cluster", rownames(SCE)[2]) +
+        annotate("text", label=sprintf("Cohen's d: %.2f, AUC: %.2f",
+            first$mean.logFC.cohen[2],  first$mean.AUC[2]),
+            x=Inf, y=Inf, hjust=1, vjust=1.5),
+    ncol=2
+)
 ```
 
 ```{r, echo=FALSE}
 # Checking the trash talk.
-out <- scoreMarkers(SCE, SCE$cluster)
-first <- out[[1]]
 stopifnot(first$mean.logFC.cohen[1] > first$mean.logFC.cohen[2] + 1)
 stopifnot(first$mean.AUC[1] == first$mean.AUC[2])
 ```
