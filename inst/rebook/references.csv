@@ -184,8 +184,8 @@ p-value-invalidity,marker-detection-redux.html,6.4
 from-data-snooping,marker-detection-redux.html,6.4.1
 false-replicates,marker-detection-redux.html,6.4.2
 further-comments,marker-detection-redux.html,6.5
-fig:comparative-markers-tw,marker-detection-redux.html,6.1
-fig:simulated-auc-cohen,marker-detection-redux.html,6.2
+fig:simulated-outliers-auc-cohen,marker-detection-redux.html,6.1
+fig:simulated-cap-auc-cohen,marker-detection-redux.html,6.2
 fig:viol-gcg-lawlor,marker-detection-redux.html,6.3
 fig:pval-dist,marker-detection-redux.html,6.4
 more-hvgs,more-hvgs.html,3
