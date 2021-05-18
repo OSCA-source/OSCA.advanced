@@ -104,6 +104,11 @@ The log-fold change in the detected proportions is specifically designed to look
 It is relatively stringent compared to the AUC and Cohen's $d$, which this can lead to the loss of good candidate markers in general applications.
 For example, _GCG_ is a known marker for pancreatic alpha cells but is expressed in almost every other cell of the @lawlor2017singlecell pancreas data (Figure \@ref(fig:viol-gcg-lawlor)) and would not be highly ranked with `logFC.detected`.
 
+```{r, results='asis', echo=FALSE}
+extractFromPackage("lawlor-pancreas.Rmd", package="OSCA.workflows",
+    chunk="normalization", objects="sce.lawlor")
+```
+
 ```{r viol-gcg-lawlor, fig.cap="Distribution of log-normalized expression values for _GCG_ across different pancreatic cell types in the Lawlor pancreas data."}
 plotExpression(sce.lawlor, x="cell type", features="ENSG00000115263")
 ```
