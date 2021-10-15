@@ -181,13 +181,14 @@ This will use the spike-in size factors to scale the contribution of each cell t
 
 ### Doublet classification  
 
-The `scDblFinder()` function [@germain2020pipecomp] implements a related approach based on doublet simulation.
+The `scDblFinder()` function [@germain2021scDblFinder] combines this artificial doublet density approach with an iterative classification scheme. 
 For each observed cell, an initial score is computed by combining the fraction of simulated doublets in its neighborhood with another score based on co-expression of mutually exclusive gene pairs [@bais2020scds].
 A threshold is chosen that best distinguishes between the real and simulated cells, allowing us to obtain putative doublet calls among the real cells.
 The threshold and scores are then iteratively refined by training a classifier on the putative calls with a variety of metrics to characterize the doublet neighborhood.
 These metrics include the low-dimensional embeddings in PC space, the fraction of doublets among the $k$ nearest neighbors for a variety of $k$,
 the distance to the closest real cell, the expected within-cluster doublet formation rate, the observed number of cells in each cluster, and so on.
 The classifier distills all of these metrics into a single score based on their learnt importance (Figure \@ref(fig:scdblfinder-tsne)).
+The method can optionally use clusters for the generation of artificial doublets:
 
 ```{r scdblfinder-tsne, fig.cap="t-SNE plot of the mammary gland data set where each point is a cell coloured according to its `scDblFinder()` score."}
 set.seed(10010101)
@@ -201,15 +202,13 @@ We can also extract explicit doublet calls for each cell based on the final thre
 table(sce.mam.dbl$scDblFinder.class)
 ```
 
-Compared to `computeDoubletDensity()`, `scDblFinder()` provides a more sophisticated approach that makes greater use of the information in the simulated doublets.
-This can improve performance of doublet calling in difficult scenarios, e.g., if many within-cluster doublets are present.
-However, this strategy has a slightly stronger reliance on clustering - and thus sensitivity to the vagaries of cluster formation - 
-as this is used to compute some of the metrics mentioned above.
+Compared to `computeDoubletDensity()`, `scDblFinder()` provides a more sophisticated approach that makes greater use of the information in the simulated doublets and can improve the accuracy of doublet identification in difficult scenarios.
+Using the `clusters` argument, as in the example above, can improve accuracy when the clusters are very well defined, but makes the process sensitive to the vagaries of clustering.
 In addition, the correctness of the simulation process remains a concern, though this is arguably the case for all algorithms of this class. 
 
 ### Further comments
 
-Simply removing cells with high doublet scores will not be sufficient to eliminate real doublets from the data set.
+Simply removing cells with high doublet scores will typically not be sufficient to eliminate real doublets from the data set.
 In some cases, only a subset of the cells in the putative doublet cluster actually have high scores, and removing these would still leave enough cells in that cluster to mislead downstream analyses.
 In fact, even defining a threshold on the doublet score is difficult as the interpretation of the score is relative.
 There is no general definition for a fixed threshold above which libraries are to be considered doublets.
