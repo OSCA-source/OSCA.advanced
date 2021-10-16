@@ -181,7 +181,7 @@ This will use the spike-in size factors to scale the contribution of each cell t
 
 ### Doublet classification  
 
-The `scDblFinder()` function [@germain2021scDblFinder] combines simulated doublet density with an iterative classification scheme. 
+The `scDblFinder()` function [@germain2021scDblFinder] combines the simulated doublet density with an iterative classification scheme. 
 For each observed cell, an initial score is computed by combining the fraction of simulated doublets in its neighborhood with another score based on co-expression of mutually exclusive gene pairs [@bais2020scds].
 A threshold is chosen that best distinguishes between the real and simulated cells, allowing us to obtain putative doublet calls among the real cells.
 The threshold and scores are then iteratively refined by training a classifier on the putative calls with a variety of metrics to characterize the doublet neighborhood.
@@ -201,11 +201,14 @@ We can also extract explicit doublet calls for each cell based on the final thre
 table(sce.mam.dbl$scDblFinder.class)
 ```
 
-The method can optionally use clustering information to simulate exclusively inter-cluster doublets via the `clusters=` argument (as in Figure \@ref(fig:scdblfinder-tsne)). This can improve accuracy when the clusters are well defined but makes the process sensitive to the vagaries of clustering.
+We set `clusters=` to instruct `scDblFinder()` to exclusively simulate doublets between different clusters in Figure \@ref(fig:scdblfinder-tsne).
+This improves the efficiency of the simulation process by eliminating intra-cluster doublets that are indistinguishable from singlets.
+Doing so is entirely optional and can be omitted if clustering information is not available or the clusters are not well-defined.
+The default of `clusters=NULL` will cause `scDblFinder()` to fall back to a random simulation scheme, similar to that used by `computeDoubletDensity()`.
 
-Compared to `computeDoubletDensity()`, `scDblFinder()` provides a more sophisticated approach that makes greater use of the information in the simulated doublets. This can improve the accuracy of doublet identification in difficult scenarios, such as when one of the two cells contributes considerably more to the doublet's library, or when doublets are transcriptionally similar to real intermediate stages.
-
-As with all algorithms of this class, the correctness of the simulation process however remains a concern.
+Compared to `computeDoubletDensity()`, `scDblFinder()` provides a more sophisticated approach that makes greater use of the information in the simulated doublets. 
+This can improve the performance of doublet identification in difficult scenarios, e.g., when one of the two cells contributes considerably more to the doublet, or when doublets are transcriptionally similar to real intermediate stages.
+However, as with all algorithms of this class, accuracy is dependent on the correctness of the simulation process. 
 
 ### Further comments
 
