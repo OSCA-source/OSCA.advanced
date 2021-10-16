@@ -203,7 +203,8 @@ table(sce.mam.dbl$scDblFinder.class)
 
 The method can optionally use clustering information to simulate exclusively inter-cluster doublets via the `clusters=` argument (as in Figure \@ref(fig:scdblfinder-tsne)). This can improve accuracy when the clusters are well defined but makes the process sensitive to the vagaries of clustering.
 
-Compared to `computeDoubletDensity()`, `scDblFinder()` provides a more sophisticated approach that makes greater use of the information in the simulated doublets and can improve the accuracy of doublet identification in difficult scenarios [@germain2021scDblFinder].
+Compared to `computeDoubletDensity()`, `scDblFinder()` provides a more sophisticated approach that makes greater use of the information in the simulated doublets. This can improve the accuracy of doublet identification in difficult scenarios, such as when one of the two cells contributes considerably more to the doublet's library, or when doublets are transcriptionally similar to real intermediate stages.
+
 As with all algorithms of this class, the correctness of the simulation process however remains a concern.
 
 ### Further comments
