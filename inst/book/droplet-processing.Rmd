@@ -62,7 +62,7 @@ legend("bottomleft", legend=c("Inflection", "Knee"),
 We use the `emptyDrops()` function to test whether the expression profile for each cell barcode is significantly different from the ambient RNA pool [@lun2018distinguishing].
 Any significant deviation indicates that the barcode corresponds to a cell-containing droplet.
 This allows us to discriminate between well-sequenced empty droplets and droplets derived from cells with little RNA, both of which would have similar total counts in Figure \@ref(fig:rankplot).
-We call cells at a false discovery rate (FDR) of 0.1%, meaning that no more than 0.1% of our called barcodes should be empty droplets on average.
+We call cells at a false discovery rate (FDR) of 1%, meaning that no more than 1% of our called barcodes should be empty droplets on average.
 
 ```{r}
 # emptyDrops performs Monte Carlo simulations to compute p-values,
@@ -71,7 +71,7 @@ set.seed(100)
 e.out <- emptyDrops(counts(sce.pbmc))
 
 # See ?emptyDrops for an explanation of why there are NA values.
-summary(e.out$FDR <= 0.001)
+summary(e.out$FDR <= 0.01)
 ```
 
 `emptyDrops()` uses Monte Carlo simulations to compute $p$-values for the multinomial sampling transcripts from the ambient pool.
@@ -81,7 +81,7 @@ If any non-significant barcodes are `TRUE` for `Limited`, we may need to increas
 A larger number of iterations will result in a lower $p$-value for these barcodes, which may allow them to be detected after correcting for multiple testing.
 
 ```{r}
-table(Sig=e.out$FDR <= 0.001, Limited=e.out$Limited)
+table(Sig=e.out$FDR <= 0.01, Limited=e.out$Limited)
 ```
 
 As mentioned above, `emptyDrops()` assumes that barcodes with low total UMI counts are empty droplets.
@@ -103,7 +103,7 @@ Once we are satisfied with the performance of `emptyDrops()`, we subset our `Sin
 Discerning readers will notice the use of `which()`, which conveniently removes the `NA`s prior to the subsetting.
  
 ```{r}
-sce.pbmc <- sce.pbmc[,which(e.out$FDR <= 0.001)]
+sce.pbmc <- sce.pbmc[,which(e.out$FDR <= 0.01)]
 ```
 
 It usually only makes sense to call cells using a count matrix involving libraries from a single sample.
@@ -271,7 +271,7 @@ We start with the usual application of `emptyDrops()` on the gene count matrix o
 ```{r barcode-rank-mix-genes, fig.wide=TRUE, fig.cap="Cell-calling statistics from running `emptyDrops()` on the gene count in the cell line mixture data. Left: Barcode rank plot with the estimated knee point in grey. Right: distribution of log-total counts for libraries identified as cells."}
 set.seed(10010)
 e.out.gene <- emptyDrops(counts(hto.sce))
-is.cell <- e.out.gene$FDR <= 0.001
+is.cell <- e.out.gene$FDR <= 0.01
 summary(is.cell)
 
 par(mfrow=c(1,2))
@@ -292,7 +292,7 @@ set.seed(10010)
 # Setting lower= for correct knee point detection, 
 # as the coverage in this dataset is particularly low.
 e.out.hto <- emptyDrops(counts(altExp(hto.sce)), by.rank=12000, lower=10)
-summary(is.cell.hto <- e.out.hto$FDR <= 0.001)
+summary(is.cell.hto <- e.out.hto$FDR <= 0.01)
 
 par(mfrow=c(1,2))
 r <- rank(-e.out.hto$Total)
