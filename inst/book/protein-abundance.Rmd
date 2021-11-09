@@ -212,7 +212,7 @@ To this end, several strategies are again available to calculate a size factor f
 
 The simplest approach is to normalize on the total ADT counts, effectively the library size for the ADTs.
 Like in Section \@ref(library-size-normalization), these "ADT library size factors" are adequate for clustering but will introduce composition biases that interfere with interpretation of the fold-changes between clusters.
-This is especially tue for relatively subtle (e.g., ~2-fold) changes in the abundances of markers associated with functional activity rather than cell type.
+This is especially true for relatively subtle (e.g., ~2-fold) changes in the abundances of markers associated with functional activity rather than cell type.
 
 ```{r}
 sf.lib <- librarySizeFactors(altExp(sce))
