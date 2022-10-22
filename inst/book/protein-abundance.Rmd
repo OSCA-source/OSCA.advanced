@@ -318,7 +318,7 @@ Alternatively, we could run `logNormCounts()` directly on `altExp(sce)` if we on
 (though in this case, we want to normalize the RNA data as we will be using it later in this chapter).
 
 ```{r}
-sce <- logNormCounts(sce, use.altexps=TRUE)
+sce <- applySCE(sce, logNormCounts)
 
 # Checking that we have normalized values:
 assayNames(sce)
@@ -372,7 +372,7 @@ library(scater)
 set.seed(1010010)
 altExp(sce) <- runTSNE(altExp(sce))
 colLabels(altExp(sce)) <- factor(clusters.adt)
-plotTSNE(altExp(sce), colour_by="label", text_by="label", text_col="red")
+plotTSNE(altExp(sce), colour_by="label", text_by="label", text_color="red")
 ```
 
 With only a few ADTs, characterization of each cluster is most efficiently achieved by creating a heatmap of the average log-abundance of each tag (Figure \@ref(fig:heat-tags)).
