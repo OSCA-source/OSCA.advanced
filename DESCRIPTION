@@ -1,12 +1,13 @@
 Package: OSCA.advanced
 Title: Advanced Single-Cell Analysis
-Version: 1.7.0
-Date: 2022-10-23
+Version: 1.7.1
+Date: 2022-11-15
 Authors@R: c( 
-        person('Robert', 'Amezquita', role = c('aut')), 
-        person('Aaron', 'Lun', role = c('aut', 'cre'), email="infinite.monkeys.with.keyboards@gmail.com"), 
+        person('Robert', 'Amezquita', role = 'aut'), 
+        person('Aaron', 'Lun', role = 'aut', 'aut'), 
         person('Stephanie', 'Hicks', role = 'aut'), 
-        person('Raphael', 'Gottardo', role = 'aut') 
+        person('Raphael', 'Gottardo', role = 'aut'),
+        person('Ludwig', 'Geistlinger', role = 'cre', email = "ludwig_geistlinger@hms.harvard.edu")
     )
 Description: 
     Deploys the advanced analysis chapters for the "Orchestrating Single Cell Analysis with Bioconductor" book.
