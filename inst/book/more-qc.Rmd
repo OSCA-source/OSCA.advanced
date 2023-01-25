@@ -186,8 +186,8 @@ To demonstrate, we compute the average count across the discarded and retained p
 # Using the non-batched 'discard' vector for demonstration purposes,
 # as it has more cells for stable calculation of 'lost'.
 discard <- reasons$discard
-lost <- calculateAverage(counts(sce.416b)[,!discard])
-kept <- calculateAverage(counts(sce.416b)[,discard])
+lost <- calculateAverage(counts(sce.416b)[,discard])
+kept <- calculateAverage(counts(sce.416b)[,!discard])
 
 library(edgeR)
 logged <- cpm(cbind(lost, kept), log=TRUE, prior.count=2)
