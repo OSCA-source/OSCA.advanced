@@ -203,7 +203,7 @@ embedded <- slingCurves(embedded)[[1]] # only 1 path.
 embedded <- data.frame(embedded$s[embedded$ord,])
 
 plotTSNE(sce.sling, colour_by="slingPseudotime_1") +
-    geom_path(data=embedded, aes(x=Dim.1, y=Dim.2), size=1.2)
+    geom_path(data=embedded, aes(x=TSNE1, y=TSNE2), size=1.2)
 ```
 
 The previous call to `slingshot()` assumed that all cells in the dataset were part of a single curve.
@@ -236,7 +236,7 @@ embedded <- embedCurves(sce.sling2, "UMAP")
 embedded <- slingCurves(embedded)
 for (path in embedded) {
     embedded <- data.frame(path$s[path$ord,])
-    gg <- gg + geom_path(data=embedded, aes(x=Dim.1, y=Dim.2), size=1.2)
+    gg <- gg + geom_path(data=embedded, aes(x=UMAP1, y=UMAP2), size=1.2)
 }
 
 gg
@@ -289,7 +289,7 @@ embedded <- embedCurves(sce.sling4, "UMAP")
 embedded <- slingCurves(embedded)
 for (path in embedded) {
     embedded <- data.frame(path$s[path$ord,])
-    gg <- gg + geom_path(data=embedded, aes(x=Dim.1, y=Dim.2), size=1.2)
+    gg <- gg + geom_path(data=embedded, aes(x=UMAP1, y=UMAP2), size=1.2)
 }
 gg
 ```
@@ -756,7 +756,7 @@ grid.df <- gridVectors(reducedDim(sce.sperm, "TSNE"), embedded, resolution=30)
 library(ggplot2)
 plotTSNE(sce.sperm, colour_by="pseudotime", point_alpha=0.3) +
     geom_segment(data=grid.df, 
-        mapping=aes(x=start.1, y=start.2, xend=end.1, yend=end.2), 
+        mapping=aes(x=start.TSNE1, y=start.TSNE2, xend=end.TSNE1, yend=end.TSNE2), 
         arrow=arrow(length=unit(0.05, "inches"), type="closed"))
 ```
 
