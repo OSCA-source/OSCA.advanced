@@ -84,7 +84,7 @@ This may occasionally result in some visually unappealing plots if the original 
 line.data <- reportEdges(by.cluster, mst=mst, clusters=NULL, use.dimred="TSNE")
 
 plotTSNE(sce.nest, colour_by="label") + 
-    geom_line(data=line.data, mapping=aes(x=dim1, y=dim2, group=edge))
+    geom_line(data=line.data, mapping=aes(x=TSNE1, y=TSNE2, group=edge))
 ```
 
 We obtain a pseudotime ordering by projecting the cells onto the MST with `mapCellsToEdges()`.
@@ -109,7 +109,7 @@ We can then examine the pseudotime ordering on our desired visualization as show
 common.pseudo <- averagePseudotime(tscan.pseudo) 
 plotTSNE(sce.nest, colour_by=I(common.pseudo), 
         text_by="label", text_colour="red") +
-    geom_line(data=line.data, mapping=aes(x=dim1, y=dim2, group=edge))
+    geom_line(data=line.data, mapping=aes(x=TSNE1, y=TSNE2, group=edge))
 ```
 
 ```{r, echo=FALSE, results="hide"}
@@ -156,7 +156,7 @@ in contrast, the MNN distance is very low and encourages the MST to create a con
 pseudo.mnn <- quickPseudotime(sce.nest, use.dimred="PCA", with.mnn=TRUE)
 mnn.pseudo <- averagePseudotime(pseudo.mnn$ordering)
 plotTSNE(sce.nest, colour_by=I(mnn.pseudo), text_by="label", text_colour="red") +
-    geom_line(data=pseudo.mnn$connected$TSNE, mapping=aes(x=dim1, y=dim2, group=edge))
+    geom_line(data=pseudo.mnn$connected$TSNE, mapping=aes(x=TSNE1, y=TSNE2, group=edge))
 ```
 
 ```{r, echo=FALSE}
@@ -489,7 +489,7 @@ sub.nest <- sub.nest[,keep]
 
 # Showing only the lines to/from our cluster of interest.
 line.data.sub <- line.data[grepl("^3--", line.data$edge) | grepl("--3$", line.data$edge),]
-ggline <- geom_line(data=line.data.sub, mapping=aes(x=dim1, y=dim2, group=edge))
+ggline <- geom_line(data=line.data.sub, mapping=aes(x=TSNE1, y=TSNE2, group=edge))
 
 gridExtra::grid.arrange(
     plotTSNE(sub.nest, colour_by="TSCAN.first") + ggline,

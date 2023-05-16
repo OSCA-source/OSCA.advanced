@@ -1,7 +1,7 @@
 Package: OSCA.advanced
 Title: Advanced Single-Cell Analysis
-Version: 1.9.0
-Date: 2023-02-15
+Version: 1.9.1
+Date: 2023-05-16
 Authors@R: c( 
         person('Robert', 'Amezquita', role = 'aut'), 
         person('Aaron', 'Lun', role = 'aut'), 
@@ -58,10 +58,8 @@ Depends: AnnotationHub,
     velociraptor,
     viridis
 Imports: 
-    OSCA.workflows
+    OSCA.workflows, OSCA.basic, OSCA.multisample
 Suggests: 
-    OSCA.basic,
-    OSCA.multisample,
     rmarkdown,
     knitr
 VignetteBuilder: knitr
