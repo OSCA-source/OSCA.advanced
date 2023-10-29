@@ -1,7 +1,7 @@
 Package: OSCA.advanced
 Title: Advanced Single-Cell Analysis
-Version: 1.10.0
-Date: 2023-05-16
+Version: 1.10.1
+Date: 2023-10-29
 Authors@R: c( 
         person('Robert', 'Amezquita', role = 'aut'), 
         person('Aaron', 'Lun', role = 'aut'), 
