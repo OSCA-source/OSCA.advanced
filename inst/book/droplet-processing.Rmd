@@ -303,7 +303,6 @@ hist(log10(e.out.hto$Total[is.cell.hto]), xlab="Log[10] HTO count", main="")
 
 While both approaches are valid, we tend to favor the cell calls derived from the gene matrix as this directly indicates that a cell is present in the droplet.
 Indeed, at least a few libraries have very high total HTO counts yet very low total gene counts (Figure \@ref(fig:hto-total-comp)), suggesting that the presence of HTOs may not always equate to successful capture of that cell's transcriptome.
-HTO counts also tend to exhibit stronger overdispersion (i.e., lower `alpha` in the `emptyDrops()` calculations), increasing the risk of violating `emptyDrops()`'s distributional assumptions.
 
 ```{r hto-total-comp, fig.cap="Total HTO counts plotted against the total gene counts for each library in the cell line mixture dataset. Each point represents a library while the dotted lines represent the thresholds below which libraries were assumed to be empty droplets."}
 table(HTO=is.cell.hto, Genes=is.cell, useNA="always")
@@ -316,7 +315,6 @@ abline(h=metadata(e.out.hto)$lower, col="blue", lwd=2, lty=2)
 
 ```{r, echo=FALSE}
 # Sanity checks for trash-talk above.
-stopifnot(metadata(e.out.hto)$alpha < 50 * metadata(e.out.gene)$alpha)
 stopifnot(sum(e.out.gene$Total < 100 & e.out.hto$Total > 1000) > 50)
 ```
 
