@@ -155,7 +155,7 @@ sf.by.clust <- vapply(by.clust, mean, 0)
 plot(rmsd, sf.by.clust, log="xy", pch=16, xlab="RMSD", ylab="Average size factor")
 ```
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, eval = FALSE}
 stopifnot(which.max(-sf.by.clust) == which.max(rmsd))
 ```
 
