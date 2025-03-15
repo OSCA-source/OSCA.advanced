@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 1 Clustering, redux | more-clustering.knit</title>
+  <meta name="description" content="" />
+  <meta name="generator" content="bookdown 0.42 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 1 Clustering, redux | more-clustering.knit" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 1 Clustering, redux | more-clustering.knit" />
+  
+  
+  
+
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+
+
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+<style type="text/css">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">OSCA Advanced</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path=""><a href="#clustering-redux"><i class="fa fa-check"></i><b>1</b> Clustering, redux</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path=""><a href="#motivation"><i class="fa fa-check"></i><b>1.1</b> Motivation</a></li>
+<li class="chapter" data-level="1.2" data-path=""><a href="#quantifying-clustering-behavior"><i class="fa fa-check"></i><b>1.2</b> Quantifying clustering behavior</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path=""><a href="#motivation-1"><i class="fa fa-check"></i><b>1.2.1</b> Motivation</a></li>
+<li class="chapter" data-level="1.2.2" data-path=""><a href="#silhouette-width"><i class="fa fa-check"></i><b>1.2.2</b> Silhouette width</a></li>
+<li class="chapter" data-level="1.2.3" data-path=""><a href="#cluster-purity"><i class="fa fa-check"></i><b>1.2.3</b> Cluster purity</a></li>
+<li class="chapter" data-level="1.2.4" data-path=""><a href="#within-cluster-sum-of-squares"><i class="fa fa-check"></i><b>1.2.4</b> Within-cluster sum of squares</a></li>
+<li class="chapter" data-level="1.2.5" data-path=""><a href="#using-graph-modularity"><i class="fa fa-check"></i><b>1.2.5</b> Using graph modularity</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path=""><a href="#comparing-different-clusterings"><i class="fa fa-check"></i><b>1.3</b> Comparing different clusterings</a>
+<ul>
+<li class="chapter" data-level="1.3.1" data-path=""><a href="#motivation-2"><i class="fa fa-check"></i><b>1.3.1</b> Motivation</a></li>
+<li class="chapter" data-level="1.3.2" data-path=""><a href="#identifying-corresponding-clusters"><i class="fa fa-check"></i><b>1.3.2</b> Identifying corresponding clusters</a></li>
+<li class="chapter" data-level="1.3.3" data-path=""><a href="#visualizing-differences"><i class="fa fa-check"></i><b>1.3.3</b> Visualizing differences</a></li>
+<li class="chapter" data-level="1.3.4" data-path=""><a href="#adjusted-rand-index"><i class="fa fa-check"></i><b>1.3.4</b> Adjusted Rand index</a></li>
+</ul></li>
+<li class="chapter" data-level="1.4" data-path=""><a href="#cluster-bootstrapping"><i class="fa fa-check"></i><b>1.4</b> Evaluating cluster stability</a></li>
+<li class="chapter" data-level="1.5" data-path=""><a href="#clustering-parameter-sweeps"><i class="fa fa-check"></i><b>1.5</b> Clustering parameter sweeps</a></li>
+<li class="chapter" data-level="1.6" data-path=""><a href="#agglomerating-graph-communities"><i class="fa fa-check"></i><b>1.6</b> Agglomerating graph communities</a></li>
+<li class="chapter" data-level="" data-path=""><a href="#session-info"><i class="fa fa-check"></i>Session Info</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://bioconductor.org" target="blank">Published by Bioconductor</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./"></a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<!--bookdown:title:end-->
+<!--bookdown:title:start-->
+<div id="clustering-redux" class="section level1 hasAnchor" number="1">
+<h1><span class="header-section-number">Chapter 1</span> Clustering, redux<a href="#clustering-redux" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<script>
+document.addEventListener("click", function (event) {
+    if (event.target.classList.contains("rebook-collapse")) {
+        event.target.classList.toggle("active");
+        var content = event.target.nextElementSibling;
+        if (content.style.display === "block") {
+            content.style.display = "none";
+        } else {
+            content.style.display = "block";
+        }
+    }
+})
+</script>
+<style>
+.rebook-collapse {
+  background-color: #eee;
+  color: #444;
+  cursor: pointer;
+  padding: 18px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-size: 15px;
+}
+
+.rebook-content {
+  padding: 0 18px;
+  display: none;
+  overflow: hidden;
+  background-color: #f1f1f1;
+}
+</style>
+<div id="motivation" class="section level2 hasAnchor" number="1.1">
+<h2><span class="header-section-number">1.1</span> Motivation<a href="#motivation" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p><a href="http://bioconductor.org/books/3.21/OSCA.basic/clustering.html#clustering">Basic Chapter 5</a> described the process of clustering cells to obtain discrete summaries of scRNA-seq datasets.
+Here, we describe some diagnostics to evaluate clustering separation and stability,
+methods to compare clusterings that represent different views of the data,
+and some strategies to choose the number of clusters.
+We will again be demonstrating these techniques on the 10X Genomics PBMC dataset, clustered using the default graph-based method in <code>clusterCells()</code>.</p>
+<button class="rebook-collapse">
+View set-up code (<a href="http://bioconductor.org/books/3.21/OSCA.workflows/unfiltered-human-pbmcs-10x-genomics.html#unfiltered-human-pbmcs-10x-genomics">Workflow Chapter 3</a>)
+</button>
+<div class="rebook-content">
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co">#--- loading ---#</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(DropletTestFiles)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>raw.path <span class="ot">&lt;-</span> <span class="fu">getTestFile</span>(<span class="st">&quot;tenx-2.1.0-pbmc4k/1.0.0/raw.tar.gz&quot;</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>out.path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="fu">tempdir</span>(), <span class="st">&quot;pbmc4k&quot;</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="fu">untar</span>(raw.path, <span class="at">exdir=</span>out.path)</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="fu">library</span>(DropletUtils)</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>fname <span class="ot">&lt;-</span> <span class="fu">file.path</span>(out.path, <span class="st">&quot;raw_gene_bc_matrices/GRCh38&quot;</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>sce.pbmc <span class="ot">&lt;-</span> <span class="fu">read10xCounts</span>(fname, <span class="at">col.names=</span><span class="cn">TRUE</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="co">#--- gene-annotation ---#</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="fu">library</span>(scater)</span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="fu">rownames</span>(sce.pbmc) <span class="ot">&lt;-</span> <span class="fu">uniquifyFeatureNames</span>(</span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>    <span class="fu">rowData</span>(sce.pbmc)<span class="sc">$</span>ID, <span class="fu">rowData</span>(sce.pbmc)<span class="sc">$</span>Symbol)</span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a><span class="fu">library</span>(EnsDb.Hsapiens.v86)</span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>location <span class="ot">&lt;-</span> <span class="fu">mapIds</span>(EnsDb.Hsapiens.v86, <span class="at">keys=</span><span class="fu">rowData</span>(sce.pbmc)<span class="sc">$</span>ID, </span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a>    <span class="at">column=</span><span class="st">&quot;SEQNAME&quot;</span>, <span class="at">keytype=</span><span class="st">&quot;GENEID&quot;</span>)</span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a><span class="co">#--- cell-detection ---#</span></span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">100</span>)</span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a>e.out <span class="ot">&lt;-</span> <span class="fu">emptyDrops</span>(<span class="fu">counts</span>(sce.pbmc))</span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a>sce.pbmc <span class="ot">&lt;-</span> sce.pbmc[,<span class="fu">which</span>(e.out<span class="sc">$</span>FDR <span class="sc">&lt;=</span> <span class="fl">0.001</span>)]</span>
+<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a><span class="co">#--- quality-control ---#</span></span>
+<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a>stats <span class="ot">&lt;-</span> <span class="fu">perCellQCMetrics</span>(sce.pbmc, <span class="at">subsets=</span><span class="fu">list</span>(<span class="at">Mito=</span><span class="fu">which</span>(location<span class="sc">==</span><span class="st">&quot;MT&quot;</span>)))</span>
+<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a>high.mito <span class="ot">&lt;-</span> <span class="fu">isOutlier</span>(stats<span class="sc">$</span>subsets_Mito_percent, <span class="at">type=</span><span class="st">&quot;higher&quot;</span>)</span>
+<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a>sce.pbmc <span class="ot">&lt;-</span> sce.pbmc[,<span class="sc">!</span>high.mito]</span>
+<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a></span>
+<span id="cb1-30"><a href="#cb1-30" tabindex="-1"></a><span class="co">#--- normalization ---#</span></span>
+<span id="cb1-31"><a href="#cb1-31" tabindex="-1"></a><span class="fu">library</span>(scran)</span>
+<span id="cb1-32"><a href="#cb1-32" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1000</span>)</span>
+<span id="cb1-33"><a href="#cb1-33" tabindex="-1"></a>clusters <span class="ot">&lt;-</span> <span class="fu">quickCluster</span>(sce.pbmc)</span>
+<span id="cb1-34"><a href="#cb1-34" tabindex="-1"></a>sce.pbmc <span class="ot">&lt;-</span> <span class="fu">computeSumFactors</span>(sce.pbmc, <span class="at">cluster=</span>clusters)</span>
+<span id="cb1-35"><a href="#cb1-35" tabindex="-1"></a>sce.pbmc <span class="ot">&lt;-</span> <span class="fu">logNormCounts</span>(sce.pbmc)</span>
+<span id="cb1-36"><a href="#cb1-36" tabindex="-1"></a></span>
+<span id="cb1-37"><a href="#cb1-37" tabindex="-1"></a><span class="co">#--- variance-modelling ---#</span></span>
+<span id="cb1-38"><a href="#cb1-38" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1001</span>)</span>
+<span id="cb1-39"><a href="#cb1-39" tabindex="-1"></a>dec.pbmc <span class="ot">&lt;-</span> <span class="fu">modelGeneVarByPoisson</span>(sce.pbmc)</span>
+<span id="cb1-40"><a href="#cb1-40" tabindex="-1"></a>top.pbmc <span class="ot">&lt;-</span> <span class="fu">getTopHVGs</span>(dec.pbmc, <span class="at">prop=</span><span class="fl">0.1</span>)</span>
+<span id="cb1-41"><a href="#cb1-41" tabindex="-1"></a></span>
+<span id="cb1-42"><a href="#cb1-42" tabindex="-1"></a><span class="co">#--- dimensionality-reduction ---#</span></span>
+<span id="cb1-43"><a href="#cb1-43" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">10000</span>)</span>
+<span id="cb1-44"><a href="#cb1-44" tabindex="-1"></a>sce.pbmc <span class="ot">&lt;-</span> <span class="fu">denoisePCA</span>(sce.pbmc, <span class="at">subset.row=</span>top.pbmc, <span class="at">technical=</span>dec.pbmc)</span>
+<span id="cb1-45"><a href="#cb1-45" tabindex="-1"></a></span>
+<span id="cb1-46"><a href="#cb1-46" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">100000</span>)</span>
+<span id="cb1-47"><a href="#cb1-47" tabindex="-1"></a>sce.pbmc <span class="ot">&lt;-</span> <span class="fu">runTSNE</span>(sce.pbmc, <span class="at">dimred=</span><span class="st">&quot;PCA&quot;</span>)</span>
+<span id="cb1-48"><a href="#cb1-48" tabindex="-1"></a></span>
+<span id="cb1-49"><a href="#cb1-49" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1000000</span>)</span>
+<span id="cb1-50"><a href="#cb1-50" tabindex="-1"></a>sce.pbmc <span class="ot">&lt;-</span> <span class="fu">runUMAP</span>(sce.pbmc, <span class="at">dimred=</span><span class="st">&quot;PCA&quot;</span>)</span></code></pre></div>
+</div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">library</span>(scran)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>nn.clust <span class="ot">&lt;-</span> <span class="fu">clusterCells</span>(sce.pbmc, <span class="at">use.dimred=</span><span class="st">&quot;PCA&quot;</span>, <span class="at">full=</span><span class="cn">TRUE</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="fu">colLabels</span>(sce.pbmc) <span class="ot">&lt;-</span> nn.clust<span class="sc">$</span>clusters</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>sce.pbmc</span></code></pre></div>
+<pre><code>## class: SingleCellExperiment 
+## dim: 33694 3951 
+## metadata(1): Samples
+## assays(2): counts logcounts
+## rownames(33694): RP11-34P13.3 FAM138A ... AC213203.1 FAM231B
+## rowData names(2): ID Symbol
+## colnames(3951): AAACCTGAGAAGGCCT-1 AAACCTGAGACAGACC-1 ...
+##   TTTGTCACAGGTCCAC-1 TTTGTCATCCCAAGAT-1
+## colData names(4): Sample Barcode sizeFactor label
+## reducedDimNames(3): PCA TSNE UMAP
+## mainExpName: NULL
+## altExpNames(0):</code></pre>
+</div>
+<div id="quantifying-clustering-behavior" class="section level2 hasAnchor" number="1.2">
+<h2><span class="header-section-number">1.2</span> Quantifying clustering behavior<a href="#quantifying-clustering-behavior" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="motivation-1" class="section level3 hasAnchor" number="1.2.1">
+<h3><span class="header-section-number">1.2.1</span> Motivation<a href="#motivation-1" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Several metrics are available to quantify the behavior of a clustering method, such as the silhouette width or graph modularity.
+These metrics are most helpful when they can be computed for each cluster, allowing us to prioritize certain clusters for more careful analysis.
+Poorly separated clusters can be prioritized for manual inspection to determine the relevance of the differences to its neighboring clusters,
+while heterogeneous clusters may be subject to further clustering to identify internal structure.
+We can also quantify the effect of different algorithms or parameter values, providing some insight into how our dataset responds to changes in the clustering method.</p>
+<p>As an aside: it is also possible to choose the clustering that optimizes for some of these metrics.
+This can be helpful to automatically obtain a “reasonable” clustering, though in practice, the clustering that yields the strongest separation often does not provide the most biological insight.
+Poorly separated clusters will often be observed in non-trivial analyses of scRNA-seq data where the aim is to characterize closely related subtypes or states.
+Indeed, the most well-separated clusters are rarely interesting as these describe obvious differences between known cell types.
+These diagnostics are best used to guide interpretation by highlighting clusters that require more investigation rather than to filter out “bad” clusters altogether.</p>
+</div>
+<div id="silhouette-width" class="section level3 hasAnchor" number="1.2.2">
+<h3><span class="header-section-number">1.2.2</span> Silhouette width<a href="#silhouette-width" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The silhouette width is an established metric for evaluating cluster separation.
+For each cell, we compute the average distance to all cells in the same cluster.
+We also compute the average distance to all cells in another cluster, taking the minimum of the averages across all other clusters.
+The silhouette width for each cell is defined as the difference between these two values divided by their maximum.
+Cells with large positive silhouette widths are closer to other cells in the same cluster than to cells in different clusters.
+Thus, clusters with large positive silhouette widths are well-separated from other clusters.</p>
+<p>The silhouette width is a natural diagnostic for hierarchical clustering where the distance matrix is already available.
+For larger datasets, we instead use an approximate approach that uses the root of the average squared distances rather than the average distance itself.
+The approximation avoids the time-consuming calculation of pairwise distances that would otherwise make this metric impractical.
+This is implemented in the <code>approxSilhouette()</code> function from <em><a href="https://bioconductor.org/packages/3.21/bluster">bluster</a></em>,
+allowing us to quickly identify poorly separate clusters with mostly negative widths (Figure <a href="#fig:pbmc-silhouette">1.1</a>).</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Performing the calculations on the PC coordinates, like before.</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">library</span>(bluster)</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>sil.approx <span class="ot">&lt;-</span> <span class="fu">approxSilhouette</span>(<span class="fu">reducedDim</span>(sce.pbmc, <span class="st">&quot;PCA&quot;</span>), <span class="at">clusters=</span><span class="fu">colLabels</span>(sce.pbmc))</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>sil.approx</span></code></pre></div>
+<pre><code>## DataFrame with 3951 rows and 3 columns
+##                     cluster    other      width
+##                    &lt;factor&gt; &lt;factor&gt;  &lt;numeric&gt;
+## AAACCTGAGAAGGCCT-1        4       12  0.1066516
+## AAACCTGAGACAGACC-1        4       5   0.2443921
+## AAACCTGCAAGGTTCT-1        2       8  -0.2715995
+## AAACCTGCAGGCGATA-1        7       9   0.5514162
+## AAACCTGCATGAAGTA-1        5       4  -0.0263331
+## ...                     ...      ...        ...
+## TTTGGTTTCCGAAGAG-1       12        4   0.314206
+## TTTGGTTTCGCTAGCG-1       4         5   0.283279
+## TTTGTCACACTTAACG-1       10        6   0.315363
+## TTTGTCACAGGTCCAC-1       1         8  -0.457413
+## TTTGTCATCCCAAGAT-1       4         5   0.262401</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>sil.data <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(sil.approx)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>sil.data<span class="sc">$</span>closest <span class="ot">&lt;-</span> <span class="fu">factor</span>(<span class="fu">ifelse</span>(sil.data<span class="sc">$</span>width <span class="sc">&gt;</span> <span class="dv">0</span>, <span class="fu">colLabels</span>(sce.pbmc), sil.data<span class="sc">$</span>other))</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>sil.data<span class="sc">$</span>cluster <span class="ot">&lt;-</span> <span class="fu">colLabels</span>(sce.pbmc)</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="fu">ggplot</span>(sil.data, <span class="fu">aes</span>(<span class="at">x=</span>cluster, <span class="at">y=</span>width, <span class="at">colour=</span>closest)) <span class="sc">+</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>    ggbeeswarm<span class="sc">::</span><span class="fu">geom_quasirandom</span>(<span class="at">method=</span><span class="st">&quot;smiley&quot;</span>)</span></code></pre></div>
+<div class="figure"><span style="display:block;" id="fig:pbmc-silhouette"></span>
+<img src="more-clustering_files/figure-html/pbmc-silhouette-1.png" alt="Distribution of the approximate silhouette width across cells in each cluster of the PBMC dataset. Each point represents a cell and colored with the identity of its own cluster if its silhouette width is positive and that of the closest other cluster if the width is negative." width="672" />
+<p class="caption">
+Figure 1.1: Distribution of the approximate silhouette width across cells in each cluster of the PBMC dataset. Each point represents a cell and colored with the identity of its own cluster if its silhouette width is positive and that of the closest other cluster if the width is negative.
+</p>
+</div>
+<p>For a more detailed examination, we identify the closest neighboring cluster for each cell in each cluster.
+In the table below, each row corresponds to one cluster; large off-diagonal counts indicate that its cells are easily confused with those from another cluster.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">table</span>(<span class="at">Cluster=</span><span class="fu">colLabels</span>(sce.pbmc), sil.data<span class="sc">$</span>closest)</span></code></pre></div>
+<pre><code>##        
+## Cluster   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16
+##      1  171   0   0   0   0  13   0   3   0  12   0   0   0   0   3   0
+##      2    1 187   0   0   0  41   0 243   1  44  71   0   0   0   2   0
+##      3    0   0 520   0   0   0   0   2   0   1   0   0   0   0   0   0
+##      4    0   0   0 665   7   1  10   0   0   0   0  53  44   0   0   0
+##      5    0   0   0   6  48   0   0   1   0   0   0   0   0   0   0   0
+##      6    7   4   0   0   0 327   0   0   0  21   0   0   0   0   0   0
+##      7    0   0   0   0   0   0 126   0   0   0   0   0   0   0   0   0
+##      8    0   0   0   0   0   0   0 740   0   0  13   0   0   0   0   0
+##      9    0   0   0   0   0   0   0   1  45   0   0   0   0   0   0   0
+##      10   0   0   0   0   0   3   0   0   0 148   0   0   0   0   0   0
+##      11   0   0   0   0   0   0   0   0   0   0 144   0   0   0   0   0
+##      12   0   0   0   0   0   0   0   0   0   0   0  77   0   0   0   0
+##      13   0   0   0   0   0   0   0   0   0   0   0   0  82   0   0   0
+##      14   0   0   0   0   0   0   0   0   0   0   0   0   0  25   0   0
+##      15   0   0   0   0   0   0   0   0   0   0   0   0   0   0  17   0
+##      16   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0  21</code></pre>
+<p>A useful aspect of the silhouette width is that it naturally captures both underclustering and overclustering.
+Cells in heterogeneous clusters will have a large average distance to other cells in the same cluster;
+all else being equal, this will decrease their widths compared to cells in homogeneous clusters.
+Conversely, cells in overclustered datasets will have low average distances to cells in adjacent clusters, again resulting in low widths.
+One can exploit this to obtain a “sensible” initial choice for the number of clusters by maximizing the average silhouette width (Section <a href="#clustering-parameter-sweeps">1.5</a>).</p>
+</div>
+<div id="cluster-purity" class="section level3 hasAnchor" number="1.2.3">
+<h3><span class="header-section-number">1.2.3</span> Cluster purity<a href="#cluster-purity" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Another metric to assess cluster separation is the degree to which cells from multiple clusters intermingle in expression space.
+The “clustering purity” is defined for each cell as the proportion of neighboring cells that are assigned to the same cluster,
+after some weighting to adjust for differences in the number of cells between clusteres.
+Well-separated clusters should exhibit little intermingling and thus high purity values for all member cells.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>pure.pbmc <span class="ot">&lt;-</span> <span class="fu">neighborPurity</span>(<span class="fu">reducedDim</span>(sce.pbmc, <span class="st">&quot;PCA&quot;</span>), <span class="fu">colLabels</span>(sce.pbmc))</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>pure.pbmc</span></code></pre></div>
+<pre><code>## DataFrame with 3951 rows and 2 columns
+##                       purity  maximum
+##                    &lt;numeric&gt; &lt;factor&gt;
+## AAACCTGAGAAGGCCT-1  1.000000        4
+## AAACCTGAGACAGACC-1  1.000000        4
+## AAACCTGCAAGGTTCT-1  0.567812        2
+## AAACCTGCAGGCGATA-1  1.000000        7
+## AAACCTGCATGAAGTA-1  1.000000        5
+## ...                      ...      ...
+## TTTGGTTTCCGAAGAG-1  0.923988       12
+## TTTGGTTTCGCTAGCG-1  1.000000       4 
+## TTTGTCACACTTAACG-1  1.000000       10
+## TTTGTCACAGGTCCAC-1  1.000000       1 
+## TTTGTCATCCCAAGAT-1  1.000000       4</code></pre>
+<p>In Figure <a href="#fig:pbmc-box-purities">1.2</a>, median purity values are consistently greater than 0.9,
+indicating that most cells in each cluster are primarily surrounded by other cells from the same cluster.
+Some clusters have low purity values that may warrant more careful inspection - these probably represent closely related subpopulations.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>pure.data <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(pure.pbmc)</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>pure.data<span class="sc">$</span>maximum <span class="ot">&lt;-</span> <span class="fu">factor</span>(pure.data<span class="sc">$</span>maximum)</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>pure.data<span class="sc">$</span>cluster <span class="ot">&lt;-</span> <span class="fu">colLabels</span>(sce.pbmc)</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="fu">ggplot</span>(pure.data, <span class="fu">aes</span>(<span class="at">x=</span>cluster, <span class="at">y=</span>purity, <span class="at">colour=</span>maximum)) <span class="sc">+</span></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>    ggbeeswarm<span class="sc">::</span><span class="fu">geom_quasirandom</span>(<span class="at">method=</span><span class="st">&quot;smiley&quot;</span>)</span></code></pre></div>
+<div class="figure"><span style="display:block;" id="fig:pbmc-box-purities"></span>
+<img src="more-clustering_files/figure-html/pbmc-box-purities-1.png" alt="Distribution of cluster purities across cells in each cluster of the PBMC dataset. Each point represents a cell and colored with the identity of the cluster contributing the largest proportion of its neighbors." width="672" />
+<p class="caption">
+Figure 1.2: Distribution of cluster purities across cells in each cluster of the PBMC dataset. Each point represents a cell and colored with the identity of the cluster contributing the largest proportion of its neighbors.
+</p>
+</div>
+<p>To determine which clusters contaminate each other, we can identify the cluster with the most neighbors for each cell.
+In the table below, each row corresponds to one cluster; large off-diagonal counts indicate that its cells are easily confused with those from another cluster.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">table</span>(<span class="at">Cluster=</span><span class="fu">colLabels</span>(sce.pbmc), pure.data<span class="sc">$</span>maximum)</span></code></pre></div>
+<pre><code>##        
+## Cluster   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16
+##      1  201   0   0   0   0   1   0   0   0   0   0   0   0   0   0   0
+##      2    0 522   0   0   0   5   0  41   0  12  10   0   0   0   0   0
+##      3    0   0 523   0   0   0   0   0   0   0   0   0   0   0   0   0
+##      4    0   0   0 739   3   0   5   0   0   0   0  25   8   0   0   0
+##      5    0   0   0   0  55   0   0   0   0   0   0   0   0   0   0   0
+##      6    0   0   0   0   0 351   0   0   0   8   0   0   0   0   0   0
+##      7    0   0   0   0   0   0 126   0   0   0   0   0   0   0   0   0
+##      8    0   1   0   0   0   0   0 738   0   0  14   0   0   0   0   0
+##      9    0   0   0   0   0   0   0   0  46   0   0   0   0   0   0   0
+##      10   0   0   0   0   0   0   0   0   0 151   0   0   0   0   0   0
+##      11   0   0   0   0   0   0   0   0   0   0 144   0   0   0   0   0
+##      12   0   0   0   0   0   0   0   0   0   0   0  77   0   0   0   0
+##      13   0   0   0   0   0   0   0   0   0   0   0   0  82   0   0   0
+##      14   0   0   0   0   0   0   0   0   0   0   0   0   0  25   0   0
+##      15   0   0   0   0   0   0   0   0   0   0   0   0   0   0  17   0
+##      16   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0  21</code></pre>
+<p>The main difference between the cluster purity and silhouette width is that the former ignores the intra-cluster variance.
+This provides a simpler interpretation of cluster separation;
+a low silhouette width may still occur in well-separated clusters if the internal heterogeneity is high, while no such complication exists for the cluster purity.
+Comparing these two metrics can give us an indication of which clusters are heterogeneous, well-separated, or both.</p>
+</div>
+<div id="within-cluster-sum-of-squares" class="section level3 hasAnchor" number="1.2.4">
+<h3><span class="header-section-number">1.2.4</span> Within-cluster sum of squares<a href="#within-cluster-sum-of-squares" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The root-mean-squared-deviation (RMSD) for each cluster is defined pretty much as it is named -
+the root of the mean of the squared differences from the cluster centroid, where the mean is computed across all cells in the cluster.
+It is closely related to the within-cluster sum of squares (WCSS) and is a natural diagnostic for <span class="math inline">\(k\)</span>-means clustering, given that the algorithm aims to find a clustering that minimizes the WCSS.
+However, it can be computed for any set of clusters if the original coordinates are available (Figure <a href="#fig:rmsd-pbmc">1.3</a>).</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>rmsd <span class="ot">&lt;-</span> <span class="fu">clusterRMSD</span>(<span class="fu">reducedDim</span>(sce.pbmc, <span class="st">&quot;PCA&quot;</span>), <span class="fu">colLabels</span>(sce.pbmc))</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="fu">barplot</span>(rmsd, <span class="at">ylab=</span><span class="st">&quot;RMSD&quot;</span>, <span class="at">xlab=</span><span class="st">&quot;Cluster&quot;</span>)</span></code></pre></div>
+<div class="figure"><span style="display:block;" id="fig:rmsd-pbmc"></span>
+<img src="more-clustering_files/figure-html/rmsd-pbmc-1.png" alt="RMSDs for each cluster in the PBMC dataset." width="672" />
+<p class="caption">
+Figure 1.3: RMSDs for each cluster in the PBMC dataset.
+</p>
+</div>
+<p>A large RMSD suggests that a cluster has some internal structure and should be prioritized for subclustering.
+Of course, this is subject to a number of caveats.
+Clusters generated from cells with low library sizes will naturally have larger RMSDs due to the greater impact of sequencing noise (Figure <a href="#fig:rmsd-pbmc-lib">1.4</a>).
+Immediately adjacent clusters may also have high RMSDs even if they are not heterogeneous.
+This occurs when there are many cells on the boundaries between clusters, which would result in a higher sum of squares from the centroid.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>by.clust <span class="ot">&lt;-</span> <span class="fu">split</span>(<span class="fu">sizeFactors</span>(sce.pbmc), <span class="fu">colLabels</span>(sce.pbmc))</span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>sf.by.clust <span class="ot">&lt;-</span> <span class="fu">vapply</span>(by.clust, mean, <span class="dv">0</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="fu">plot</span>(rmsd, sf.by.clust, <span class="at">log=</span><span class="st">&quot;xy&quot;</span>, <span class="at">pch=</span><span class="dv">16</span>, <span class="at">xlab=</span><span class="st">&quot;RMSD&quot;</span>, <span class="at">ylab=</span><span class="st">&quot;Average size factor&quot;</span>)</span></code></pre></div>
+<div class="figure"><span style="display:block;" id="fig:rmsd-pbmc-lib"></span>
+<img src="more-clustering_files/figure-html/rmsd-pbmc-lib-1.png" alt="RMSDs for each cluster in the PBMC dataset as a function of the average size factor." width="672" />
+<p class="caption">
+Figure 1.4: RMSDs for each cluster in the PBMC dataset as a function of the average size factor.
+</p>
+</div>
+<pre><code>## [1] TRUE</code></pre>
+</div>
+<div id="using-graph-modularity" class="section level3 hasAnchor" number="1.2.5">
+<h3><span class="header-section-number">1.2.5</span> Using graph modularity<a href="#using-graph-modularity" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>For graph-based clustering, the modularity is a natural metric for evaluating the separation between communities.
+This is defined as the (scaled) difference between the observed total weight of edges between nodes in the same cluster and the expected total weight if edge weights were randomly distributed across all pairs of nodes.
+Larger modularity values indicate that there most edges occur within clusters, suggesting that the clusters are sufficiently well separated to avoid edges forming between neighboring cells in different clusters.</p>
+<p>The standard approach is to report a single modularity value for a clustering on a given graph.
+This is useful for comparing different clusterings on the same graph - and indeed, some community detection algorithms are designed with the aim of maximizing the modularity - but it is less helpful for interpreting a given clustering.
+Rather, we use the <code>pairwiseModularity()</code> function from <em><a href="https://bioconductor.org/packages/3.21/bluster">bluster</a></em> with <code>as.ratio=TRUE</code>, which returns the ratio of the observed to expected sum of weights between each pair of clusters.
+We use the ratio instead of the difference as the former is less dependent on the number of cells in each cluster.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>g <span class="ot">&lt;-</span> nn.clust<span class="sc">$</span>objects<span class="sc">$</span>graph</span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a>ratio <span class="ot">&lt;-</span> <span class="fu">pairwiseModularity</span>(g, <span class="fu">colLabels</span>(sce.pbmc), <span class="at">as.ratio=</span><span class="cn">TRUE</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a><span class="fu">dim</span>(ratio)</span></code></pre></div>
+<pre><code>## [1] 16 16</code></pre>
+<p>In this matrix, each row/column corresponds to a cluster and each entry contains the ratio of the observed to total weight of edges between cells in the respective clusters.
+A dataset containing well-separated clusters should contain most of the observed total weight on the diagonal entries, i.e., most edges occur between cells in the same cluster.
+Indeed, concentration of the weight on the diagonal of (Figure <a href="#fig:cluster-mod">1.5</a>) indicates that most of the clusters are well-separated, while some modest off-diagonal entries represent closely related clusters with more inter-connecting edges.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a><span class="fu">library</span>(pheatmap)</span>
+<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a><span class="fu">pheatmap</span>(<span class="fu">log2</span>(ratio<span class="sc">+</span><span class="dv">1</span>), <span class="at">cluster_rows=</span><span class="cn">FALSE</span>, <span class="at">cluster_cols=</span><span class="cn">FALSE</span>,</span>
+<span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a>    <span class="at">color=</span><span class="fu">colorRampPalette</span>(<span class="fu">c</span>(<span class="st">&quot;white&quot;</span>, <span class="st">&quot;blue&quot;</span>))(<span class="dv">100</span>))</span></code></pre></div>
+<div class="figure"><span style="display:block;" id="fig:cluster-mod"></span>
+<img src="more-clustering_files/figure-html/cluster-mod-1.png" alt="Heatmap of the log~2~-ratio of the total weight between nodes in the same cluster or in different clusters, relative to the total weight expected under a null model of random links." width="672" />
+<p class="caption">
+Figure 1.5: Heatmap of the log<sub>2</sub>-ratio of the total weight between nodes in the same cluster or in different clusters, relative to the total weight expected under a null model of random links.
+</p>
+</div>
+<p>One useful approach is to use the <code>ratio</code> matrix to form another graph where the nodes are clusters rather than cells.
+Edges between nodes are weighted according to the ratio of observed to expected edge weights between cells in those clusters.
+We can then repeat our graph operations on this new cluster-level graph to explore the relationships between clusters.
+For example, we could obtain clusters of clusters, or we could simply create a new cluster-based layout for visualization (Figure <a href="#fig:cluster-graph">1.6</a>).
+This is analogous to the “graph abstraction” approach described by <span class="citation">Wolf et al. (2017)</span>, which can be used to identify trajectories in the data based on high-weight paths between clusters.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a>cluster.gr <span class="ot">&lt;-</span> igraph<span class="sc">::</span><span class="fu">graph_from_adjacency_matrix</span>(<span class="fu">log2</span>(ratio<span class="sc">+</span><span class="dv">1</span>),</span>
+<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a>    <span class="at">mode=</span><span class="st">&quot;upper&quot;</span>, <span class="at">weighted=</span><span class="cn">TRUE</span>, <span class="at">diag=</span><span class="cn">FALSE</span>)</span>
+<span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" tabindex="-1"></a><span class="co"># Increasing the weight to increase the visibility of the lines.</span></span>
+<span id="cb20-5"><a href="#cb20-5" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">11001010</span>)</span>
+<span id="cb20-6"><a href="#cb20-6" tabindex="-1"></a><span class="fu">plot</span>(cluster.gr, <span class="at">edge.width=</span>igraph<span class="sc">::</span><span class="fu">E</span>(cluster.gr)<span class="sc">$</span>weight<span class="sc">*</span><span class="dv">5</span>,</span>
+<span id="cb20-7"><a href="#cb20-7" tabindex="-1"></a>    <span class="at">layout=</span>igraph<span class="sc">::</span>layout_with_lgl)</span></code></pre></div>
+<div class="figure"><span style="display:block;" id="fig:cluster-graph"></span>
+<img src="more-clustering_files/figure-html/cluster-graph-1.png" alt="Force-based layout showing the relationships between clusters based on the log-ratio of observed to expected total weights between nodes in different clusters. The thickness of the edge between a pair of clusters is proportional to the corresponding log-ratio." width="672" />
+<p class="caption">
+Figure 1.6: Force-based layout showing the relationships between clusters based on the log-ratio of observed to expected total weights between nodes in different clusters. The thickness of the edge between a pair of clusters is proportional to the corresponding log-ratio.
+</p>
+</div>
+<p>Incidentally, some readers may have noticed that all <em><a href="https://CRAN.R-project.org/package=igraph">igraph</a></em> commands were prefixed with <code>igraph::</code>.
+We have done this deliberately to avoid bringing <code>igraph::normalize</code> into the global namespace.
+Rather unfortunately, this <code>normalize</code> function accepts any argument and returns <code>NULL</code>, which causes difficult-to-diagnose bugs when it overwrites <code>normalize</code> from <em><a href="https://bioconductor.org/packages/3.21/BiocGenerics">BiocGenerics</a></em>.</p>
+</div>
+</div>
+<div id="comparing-different-clusterings" class="section level2 hasAnchor" number="1.3">
+<h2><span class="header-section-number">1.3</span> Comparing different clusterings<a href="#comparing-different-clusterings" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="motivation-2" class="section level3 hasAnchor" number="1.3.1">
+<h3><span class="header-section-number">1.3.1</span> Motivation<a href="#motivation-2" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>As previously mentioned, clustering’s main purpose is to obtain a discrete summary of the data for further interpretation.
+The diversity of available methods (and the subsequent variation in the clustering results)
+reflects the many different “perspectives” that can be derived from a high-dimensional scRNA-seq dataset.
+It is helpful to determine how these perspectives relate to each other by comparing the clustering results.
+More concretely, we want to know which clusters map to each other across algorithms;
+inconsistencies may be indicative of complex variation that is summarized differently by each clustering procedure.
+To illustrate, we will consider different variants of graph-based clustering on our PBMC dataset.</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a>clust.walktrap <span class="ot">&lt;-</span> <span class="fu">clusterCells</span>(sce.pbmc, <span class="at">use.dimred=</span><span class="st">&quot;PCA&quot;</span>, </span>
+<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a>    <span class="at">BLUSPARAM=</span><span class="fu">NNGraphParam</span>(<span class="at">cluster.fun=</span><span class="st">&quot;walktrap&quot;</span>))</span>
+<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a>clust.louvain <span class="ot">&lt;-</span> <span class="fu">clusterCells</span>(sce.pbmc, <span class="at">use.dimred=</span><span class="st">&quot;PCA&quot;</span>, </span>
+<span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a>    <span class="at">BLUSPARAM=</span><span class="fu">NNGraphParam</span>(<span class="at">cluster.fun=</span><span class="st">&quot;louvain&quot;</span>))</span></code></pre></div>
+</div>
+<div id="identifying-corresponding-clusters" class="section level3 hasAnchor" number="1.3.2">
+<h3><span class="header-section-number">1.3.2</span> Identifying corresponding clusters<a href="#identifying-corresponding-clusters" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The simplest approach for comparing two clusterings of the same dataset is to create a 2-dimensional table of label frequencies.
+We can then identify how our Walktrap clusters are redistributed when we switch to using Louvain community detection (Figure <a href="#fig:walktrap-v-louvain-prop">1.7</a>).
+Multiple non-zero entries along a row or column indicate that multiple clusters in one clustering are merged in the other clustering.</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a>tab <span class="ot">&lt;-</span> <span class="fu">table</span>(<span class="at">Walktrap=</span>clust.walktrap, <span class="at">Louvain=</span>clust.louvain)</span>
+<span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a><span class="fu">rownames</span>(tab) <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="st">&quot;Walktrap&quot;</span>, <span class="fu">rownames</span>(tab))</span>
+<span id="cb22-3"><a href="#cb22-3" tabindex="-1"></a><span class="fu">colnames</span>(tab) <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="st">&quot;Louvain&quot;</span>, <span class="fu">colnames</span>(tab))</span>
+<span id="cb22-4"><a href="#cb22-4" tabindex="-1"></a></span>
+<span id="cb22-5"><a href="#cb22-5" tabindex="-1"></a><span class="fu">library</span>(pheatmap)</span>
+<span id="cb22-6"><a href="#cb22-6" tabindex="-1"></a><span class="fu">pheatmap</span>(<span class="fu">log10</span>(tab<span class="sc">+</span><span class="dv">10</span>), <span class="at">color=</span>viridis<span class="sc">::</span><span class="fu">viridis</span>(<span class="dv">100</span>), <span class="at">cluster_cols=</span><span class="cn">FALSE</span>, <span class="at">cluster_rows=</span><span class="cn">FALSE</span>)</span></code></pre></div>
+<div class="figure"><span style="display:block;" id="fig:walktrap-v-louvain-prop"></span>
+<img src="more-clustering_files/figure-html/walktrap-v-louvain-prop-1.png" alt="Heatmap of the number of cells in each pair of clusters from Walktrap (rows) and Louvain clustering (columns) in the PBMC dataset." width="672" />
+<p class="caption">
+Figure 1.7: Heatmap of the number of cells in each pair of clusters from Walktrap (rows) and Louvain clustering (columns) in the PBMC dataset.
+</p>
+</div>
+<p>A more sophisticated approach involves computing the Jaccard index for each pair of clusters.
+This normalizes for the differences in cluster abundance so that large clusters do not dominate the color scale (Figure <a href="#fig:walktrap-v-louvain-jaccard">1.8</a>).
+Jaccard indices of 1 represent a perfect 1:1 mapping between a pair of clusters.</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a>jacc.mat <span class="ot">&lt;-</span> <span class="fu">linkClustersMatrix</span>(clust.walktrap, clust.louvain)</span>
+<span id="cb23-2"><a href="#cb23-2" tabindex="-1"></a><span class="fu">rownames</span>(jacc.mat) <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="st">&quot;Walktrap&quot;</span>, <span class="fu">rownames</span>(jacc.mat))</span>
+<span id="cb23-3"><a href="#cb23-3" tabindex="-1"></a><span class="fu">colnames</span>(jacc.mat) <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="st">&quot;Louvain&quot;</span>, <span class="fu">colnames</span>(jacc.mat))</span>
+<span id="cb23-4"><a href="#cb23-4" tabindex="-1"></a><span class="fu">pheatmap</span>(jacc.mat, <span class="at">color=</span>viridis<span class="sc">::</span><span class="fu">viridis</span>(<span class="dv">100</span>), <span class="at">cluster_cols=</span><span class="cn">FALSE</span>, <span class="at">cluster_rows=</span><span class="cn">FALSE</span>)</span></code></pre></div>
+<div class="figure"><span style="display:block;" id="fig:walktrap-v-louvain-jaccard"></span>
+<img src="more-clustering_files/figure-html/walktrap-v-louvain-jaccard-1.png" alt="Heatmap of the Jaccard indices comparing each Walktrap cluster (rows) to each Louvain cluster (columns) in the PBMC dataset." width="672" />
+<p class="caption">
+Figure 1.8: Heatmap of the Jaccard indices comparing each Walktrap cluster (rows) to each Louvain cluster (columns) in the PBMC dataset.
+</p>
+</div>
+<p>We identify the best corresponding clusters based on the largest Jaccard index along each row.
+The magnitude of the index can be used as a measure of strength for the correspondence between those two clusters.
+A low index for a cluster indicates that no counterpart exists in the other clustering.</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a>best <span class="ot">&lt;-</span> <span class="fu">max.col</span>(jacc.mat, <span class="at">ties.method=</span><span class="st">&quot;first&quot;</span>)</span>
+<span id="cb24-2"><a href="#cb24-2" tabindex="-1"></a><span class="fu">DataFrame</span>(</span>
+<span id="cb24-3"><a href="#cb24-3" tabindex="-1"></a>    <span class="at">Cluster=</span><span class="fu">rownames</span>(jacc.mat), </span>
+<span id="cb24-4"><a href="#cb24-4" tabindex="-1"></a>    <span class="at">Corresponding=</span><span class="fu">colnames</span>(jacc.mat)[best], </span>
+<span id="cb24-5"><a href="#cb24-5" tabindex="-1"></a>    <span class="at">Index=</span>jacc.mat[<span class="fu">cbind</span>(<span class="fu">seq_len</span>(<span class="fu">nrow</span>(jacc.mat)), best)]</span>
+<span id="cb24-6"><a href="#cb24-6" tabindex="-1"></a>)</span></code></pre></div>
+<pre><code>## DataFrame with 16 rows and 3 columns
+##         Cluster Corresponding     Index
+##     &lt;character&gt;   &lt;character&gt; &lt;numeric&gt;
+## 1    Walktrap 1     Louvain 9  0.900901
+## 2    Walktrap 2     Louvain 2  0.556478
+## 3    Walktrap 3     Louvain 5  0.996176
+## 4    Walktrap 4     Louvain 1  0.564103
+## 5    Walktrap 5     Louvain 4  0.156069
+## ...         ...           ...       ...
+## 12  Walktrap 12     Louvain 1 0.1370107
+## 13  Walktrap 13    Louvain 11 0.9534884
+## 14  Walktrap 14    Louvain 10 0.5434783
+## 15  Walktrap 15     Louvain 9 0.0772727
+## 16  Walktrap 16    Louvain 10 0.4565217</code></pre>
+</div>
+<div id="visualizing-differences" class="section level3 hasAnchor" number="1.3.3">
+<h3><span class="header-section-number">1.3.3</span> Visualizing differences<a href="#visualizing-differences" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The <code>linkClusters()</code> function constructs a graph where nodes are clusters from multiple clusterings and edges are formed between corresponding clusters.
+More specifically, the weight of each edge is defined from the number of shared cells, with the Jaccard index being the potential weighting scheme used when <code>denominator="union"</code>.
+The idea is to obtain “clusters of clusters”, allowing us to visualize the relationships between clusters from two or more clusterings (Figure <a href="#fig:pbmc-graph-linked">1.9</a>).
+As the name suggests, <code>linkClusters()</code> is closely related to the output of the <code>linkClustersMatrix()</code> function;
+indeed, the latter simply returns part of the adjacency matrix used to create the graph in the former.</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a>clust.infomap <span class="ot">&lt;-</span> <span class="fu">clusterCells</span>(sce.pbmc, <span class="at">use.dimred=</span><span class="st">&quot;PCA&quot;</span>, </span>
+<span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a>    <span class="at">BLUSPARAM=</span><span class="fu">NNGraphParam</span>(<span class="at">cluster.fun=</span><span class="st">&quot;infomap&quot;</span>))</span>
+<span id="cb26-3"><a href="#cb26-3" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" tabindex="-1"></a>linked <span class="ot">&lt;-</span> <span class="fu">linkClusters</span>(<span class="fu">list</span>(</span>
+<span id="cb26-5"><a href="#cb26-5" tabindex="-1"></a>    <span class="at">walktrap=</span>clust.walktrap,</span>
+<span id="cb26-6"><a href="#cb26-6" tabindex="-1"></a>    <span class="at">louvain=</span>clust.louvain,</span>
+<span id="cb26-7"><a href="#cb26-7" tabindex="-1"></a>    <span class="at">infomap=</span>clust.infomap)</span>
+<span id="cb26-8"><a href="#cb26-8" tabindex="-1"></a>)</span>
+<span id="cb26-9"><a href="#cb26-9" tabindex="-1"></a>linked</span></code></pre></div>
+<pre><code>## IGRAPH 5797359 UNW- 65 147 -- 
+## + attr: name (v/c), weight (e/n)
+## + edges from 5797359 (vertex names):
+##  [1] walktrap.4 --louvain.1  walktrap.5 --louvain.1  walktrap.12--louvain.1 
+##  [4] walktrap.2 --louvain.2  walktrap.6 --louvain.2  walktrap.8 --louvain.2 
+##  [7] walktrap.4 --louvain.3  walktrap.7 --louvain.3  walktrap.4 --louvain.4 
+## [10] walktrap.5 --louvain.4  walktrap.3 --louvain.5  walktrap.2 --louvain.6 
+## [13] walktrap.8 --louvain.6  walktrap.2 --louvain.7  walktrap.3 --louvain.7 
+## [16] walktrap.6 --louvain.7  walktrap.10--louvain.7  walktrap.2 --louvain.8 
+## [19] walktrap.3 --louvain.8  walktrap.9 --louvain.8  walktrap.1 --louvain.9 
+## [22] walktrap.2 --louvain.9  walktrap.6 --louvain.9  walktrap.15--louvain.9 
+## + ... omitted several edges</code></pre>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" tabindex="-1"></a>meta <span class="ot">&lt;-</span> igraph<span class="sc">::</span><span class="fu">cluster_walktrap</span>(linked)</span>
+<span id="cb28-2"><a href="#cb28-2" tabindex="-1"></a><span class="fu">plot</span>(linked, <span class="at">mark.groups=</span>meta)</span></code></pre></div>
+<div class="figure"><span style="display:block;" id="fig:pbmc-graph-linked"></span>
+<img src="more-clustering_files/figure-html/pbmc-graph-linked-1.png" alt="Force-directed layout of the graph of the clusters obtained from different variants of community detection on the PBMC dataset. Each node represents a cluster obtained using one comunity detection method, with colored groupings representing clusters of clusters across different methods." width="768" />
+<p class="caption">
+Figure 1.9: Force-directed layout of the graph of the clusters obtained from different variants of community detection on the PBMC dataset. Each node represents a cluster obtained using one comunity detection method, with colored groupings representing clusters of clusters across different methods.
+</p>
+</div>
+<p>For clusterings that differ primarily in resolution (usually from different parameterizations of the same algorithm),
+we can use the <em><a href="https://CRAN.R-project.org/package=clustree">clustree</a></em> package to visualize the relationships between them.
+Here, the aim is to capture the redistribution of cells from one clustering to another at progressively higher resolution,
+providing a convenient depiction of how clusters split apart (Figure <a href="#fig:walktrap-res-clustree">1.10</a>).
+This approach is most effective when the clusterings exhibit a clear gradation in resolution
+but is less useful for comparisons involving theoretically distinct clustering procedures.</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" tabindex="-1"></a>clust<span class="fl">.5</span> <span class="ot">&lt;-</span> <span class="fu">clusterCells</span>(sce.pbmc, <span class="at">use.dimred=</span><span class="st">&quot;PCA&quot;</span>, <span class="at">BLUSPARAM=</span><span class="fu">NNGraphParam</span>(<span class="at">k=</span><span class="dv">5</span>))</span>
+<span id="cb29-2"><a href="#cb29-2" tabindex="-1"></a>clust<span class="fl">.10</span> <span class="ot">&lt;-</span> <span class="fu">clusterCells</span>(sce.pbmc, <span class="at">use.dimred=</span><span class="st">&quot;PCA&quot;</span>, <span class="at">BLUSPARAM=</span><span class="fu">NNGraphParam</span>(<span class="at">k=</span><span class="dv">10</span>))</span>
+<span id="cb29-3"><a href="#cb29-3" tabindex="-1"></a>clust<span class="fl">.50</span> <span class="ot">&lt;-</span> <span class="fu">clusterCells</span>(sce.pbmc, <span class="at">use.dimred=</span><span class="st">&quot;PCA&quot;</span>, <span class="at">BLUSPARAM=</span><span class="fu">NNGraphParam</span>(<span class="at">k=</span><span class="dv">50</span>))</span>
+<span id="cb29-4"><a href="#cb29-4" tabindex="-1"></a></span>
+<span id="cb29-5"><a href="#cb29-5" tabindex="-1"></a>combined <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="at">k.5=</span>clust<span class="fl">.5</span>, <span class="at">k.10=</span>clust<span class="fl">.10</span>, <span class="at">k.50=</span>clust<span class="fl">.50</span>)</span>
+<span id="cb29-6"><a href="#cb29-6" tabindex="-1"></a></span>
+<span id="cb29-7"><a href="#cb29-7" tabindex="-1"></a><span class="fu">library</span>(clustree)</span>
+<span id="cb29-8"><a href="#cb29-8" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1111</span>)</span>
+<span id="cb29-9"><a href="#cb29-9" tabindex="-1"></a><span class="fu">clustree</span>(combined, <span class="at">prefix=</span><span class="st">&quot;k.&quot;</span>, <span class="at">edge_arrow=</span><span class="cn">FALSE</span>)</span></code></pre></div>
+<div class="figure"><span style="display:block;" id="fig:walktrap-res-clustree"></span>
+<img src="more-clustering_files/figure-html/walktrap-res-clustree-1.png" alt="Graph of the relationships between the Walktrap clusterings of the PBMC dataset, generated with varying $k$ during the nearest-neighbor graph construction. (A higher $k$ generally corresponds to a lower resolution clustering.) The size of the nodes is proportional to the number of cells in each cluster, and the edges depict cells in one cluster that are reassigned to another cluster at a different resolution. The color of the edges is defined according to the number of reassigned cells and the opacity is defined from the corresponding proportion relative to the size of the lower-resolution cluster." width="1440" />
+<p class="caption">
+Figure 1.10: Graph of the relationships between the Walktrap clusterings of the PBMC dataset, generated with varying <span class="math inline">\(k\)</span> during the nearest-neighbor graph construction. (A higher <span class="math inline">\(k\)</span> generally corresponds to a lower resolution clustering.) The size of the nodes is proportional to the number of cells in each cluster, and the edges depict cells in one cluster that are reassigned to another cluster at a different resolution. The color of the edges is defined according to the number of reassigned cells and the opacity is defined from the corresponding proportion relative to the size of the lower-resolution cluster.
+</p>
+</div>
+</div>
+<div id="adjusted-rand-index" class="section level3 hasAnchor" number="1.3.4">
+<h3><span class="header-section-number">1.3.4</span> Adjusted Rand index<a href="#adjusted-rand-index" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>We can quantify the agreement between two clusterings by computing the Rand index with <em><a href="https://bioconductor.org/packages/3.21/bluster">bluster</a></em>’s <code>pairwiseRand()</code>.
+This is defined as the proportion of pairs of cells that retain the same status (i.e., both cells in the same cluster, or each cell in different clusters) in both clusterings.
+In practice, we usually compute the adjusted Rand index (ARI) where we subtract the number of concordant pairs expected under random permutations of the clusterings; this accounts for differences in the size and number of clusters within and between clusterings.
+A larger ARI indicates that the clusters are preserved, up to a maximum value of 1 for identical clusterings.
+In and of itself, the magnitude of the ARI has little meaning, and it is best used to assess the relative similarities of different clusterings (e.g., “Walktrap is more similar to Louvain than either are to Infomap”).
+Nonetheless, if one must have a hard-and-fast rule, experience suggests that an ARI greater than 0.5 corresponds to “good” similarity between two clusterings.</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" tabindex="-1"></a><span class="fu">pairwiseRand</span>(clust<span class="fl">.10</span>, clust<span class="fl">.5</span>, <span class="at">mode=</span><span class="st">&quot;index&quot;</span>)</span></code></pre></div>
+<pre><code>## [1] 0.6974</code></pre>
+<p>The same function can also provide a more granular perspective with <code>mode="ratio"</code>,
+where the ARI is broken down into its contributions from each pair of clusters in one of the clusterings.
+This mode is helpful if one of the clusterings - in this case, <code>clust</code> - is considered to be a “reference”,
+and the aim is to quantify the extent to which the reference clusters retain their integrity in another clustering.
+In the <code>breakdown</code> matrix, each entry is a ratio of the adjusted number of concoordant pairs to the adjusted total number of pairs.
+Low values on the diagonal in Figure <a href="#fig:pbmc-rand-breakdown">1.11</a> indicate that cells from the corresponding reference cluster in <code>clust</code> are redistributed to multiple other clusters in <code>clust.5</code>.
+Conversely, low off-diagonal values indicate that the corresponding pair of reference clusters are merged together in <code>clust.5</code>.</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" tabindex="-1"></a>breakdown <span class="ot">&lt;-</span> <span class="fu">pairwiseRand</span>(<span class="at">ref=</span>clust<span class="fl">.10</span>, <span class="at">alt=</span>clust<span class="fl">.5</span>, <span class="at">mode=</span><span class="st">&quot;ratio&quot;</span>)</span>
+<span id="cb32-2"><a href="#cb32-2" tabindex="-1"></a><span class="fu">pheatmap</span>(breakdown, <span class="at">color=</span>viridis<span class="sc">::</span><span class="fu">magma</span>(<span class="dv">100</span>),</span>
+<span id="cb32-3"><a href="#cb32-3" tabindex="-1"></a>    <span class="at">cluster_rows=</span><span class="cn">FALSE</span>, <span class="at">cluster_cols=</span><span class="cn">FALSE</span>)</span></code></pre></div>
+<div class="figure"><span style="display:block;" id="fig:pbmc-rand-breakdown"></span>
+<img src="more-clustering_files/figure-html/pbmc-rand-breakdown-1.png" alt="ARI-based ratio for each pair of clusters in the reference Walktrap clustering compared to a higher-resolution alternative clustering for the PBMC dataset. Rows and columns of the heatmap represent clusters in the reference clustering. Each entry represents the proportion of pairs of cells involving the row/column clusters that retain the same status in the alternative clustering." width="672" />
+<p class="caption">
+Figure 1.11: ARI-based ratio for each pair of clusters in the reference Walktrap clustering compared to a higher-resolution alternative clustering for the PBMC dataset. Rows and columns of the heatmap represent clusters in the reference clustering. Each entry represents the proportion of pairs of cells involving the row/column clusters that retain the same status in the alternative clustering.
+</p>
+</div>
+</div>
+</div>
+<div id="cluster-bootstrapping" class="section level2 hasAnchor" number="1.4">
+<h2><span class="header-section-number">1.4</span> Evaluating cluster stability<a href="#cluster-bootstrapping" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>A desirable property of a given clustering is that it is stable to perturbations to the input data <span class="citation">(Von Luxburg 2010)</span>.
+Stable clusters are logistically convenient as small changes to upstream processing will not change the conclusions;
+greater stability also increases the likelihood that those conclusions can be reproduced in an independent replicate study.
+<em><a href="https://bioconductor.org/packages/3.21/scran">scran</a></em> uses bootstrapping to evaluate the stability of a clustering algorithm on a given dataset - that is, cells are sampled with replacement to create a “bootstrap replicate” dataset, and clustering is repeated on this replicate to see if the same clusters can be reproduced.
+We demonstrate below for graph-based clustering on the PCs of the PBMC dataset.</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" tabindex="-1"></a>myClusterFUN <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb33-2"><a href="#cb33-2" tabindex="-1"></a>    g <span class="ot">&lt;-</span> bluster<span class="sc">::</span><span class="fu">makeSNNGraph</span>(x, <span class="at">type=</span><span class="st">&quot;jaccard&quot;</span>)</span>
+<span id="cb33-3"><a href="#cb33-3" tabindex="-1"></a>    igraph<span class="sc">::</span><span class="fu">cluster_louvain</span>(g)<span class="sc">$</span>membership</span>
+<span id="cb33-4"><a href="#cb33-4" tabindex="-1"></a>}</span>
+<span id="cb33-5"><a href="#cb33-5" tabindex="-1"></a></span>
+<span id="cb33-6"><a href="#cb33-6" tabindex="-1"></a>pcs <span class="ot">&lt;-</span> <span class="fu">reducedDim</span>(sce.pbmc, <span class="st">&quot;PCA&quot;</span>)</span>
+<span id="cb33-7"><a href="#cb33-7" tabindex="-1"></a>originals <span class="ot">&lt;-</span> <span class="fu">myClusterFUN</span>(pcs)</span>
+<span id="cb33-8"><a href="#cb33-8" tabindex="-1"></a><span class="fu">table</span>(originals) <span class="co"># inspecting the cluster sizes.</span></span></code></pre></div>
+<pre><code>## originals
+##   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 
+## 345 508 342 126  56 522 764 155  48 221  46  85 369 218 146</code></pre>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">0010010100</span>)</span>
+<span id="cb35-2"><a href="#cb35-2" tabindex="-1"></a>ratios <span class="ot">&lt;-</span> <span class="fu">bootstrapStability</span>(pcs, <span class="at">FUN=</span>myClusterFUN, <span class="at">clusters=</span>originals)</span>
+<span id="cb35-3"><a href="#cb35-3" tabindex="-1"></a><span class="fu">dim</span>(ratios)</span></code></pre></div>
+<pre><code>## [1] 15 15</code></pre>
+<p>The function returns a matrix of ARI-derived ratios for every pair of original clusters in <code>originals</code> (Figure <a href="#fig:bootstrap-matrix">1.12</a>), averaged across bootstrap iterations.
+High ratios indicate that the clustering in the bootstrap replicates are highly consistent with that of the original dataset.
+More specifically, high ratios on the diagonal indicate that cells in the same original cluster are still together in the bootstrap replicates, while high ratios off the diagonal indicate that cells in the corresponding cluster pair are still separted.</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" tabindex="-1"></a><span class="fu">pheatmap</span>(ratios, <span class="at">cluster_row=</span><span class="cn">FALSE</span>, <span class="at">cluster_col=</span><span class="cn">FALSE</span>,</span>
+<span id="cb37-2"><a href="#cb37-2" tabindex="-1"></a>    <span class="at">color=</span>viridis<span class="sc">::</span><span class="fu">magma</span>(<span class="dv">100</span>), <span class="at">breaks=</span><span class="fu">seq</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="at">length.out=</span><span class="dv">101</span>))</span></code></pre></div>
+<div class="figure"><span style="display:block;" id="fig:bootstrap-matrix"></span>
+<img src="more-clustering_files/figure-html/bootstrap-matrix-1.png" alt="Heatmap of ARI-derived ratios from bootstrapping of graph-based clustering in the PBMC dataset. Each row and column represents an original cluster and each entry is colored according to the value of the ARI ratio between that pair of clusters." width="672" />
+<p class="caption">
+Figure 1.12: Heatmap of ARI-derived ratios from bootstrapping of graph-based clustering in the PBMC dataset. Each row and column represents an original cluster and each entry is colored according to the value of the ARI ratio between that pair of clusters.
+</p>
+</div>
+<p>Bootstrapping is a general approach for evaluating cluster stability that is compatible with any clustering algorithm.
+The ARI-derived ratio between cluster pairs is also more informative than a single stability measure for all/each cluster as the former considers the relationships between clusters, e.g., unstable separation between <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> does not penalize the stability of separation between <span class="math inline">\(X\)</span> and another cluster <span class="math inline">\(Z\)</span>.
+However, one should take these metrics with a grain of salt, as bootstrapping only considers the effect of sampling noise and ignores other factors that affect reproducibility in an independent study (e.g., batch effects, donor variation).
+In addition, it is possible for a poor separation to be highly stable, so highly stable cluster may not necessarily represent some distinct subpopulation.</p>
+</div>
+<div id="clustering-parameter-sweeps" class="section level2 hasAnchor" number="1.5">
+<h2><span class="header-section-number">1.5</span> Clustering parameter sweeps<a href="#clustering-parameter-sweeps" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>The <code>clusterSweep()</code> function allows us to quickly apply our clustering with a range of different parameters.
+For example, we can iterate across different combinations of <code>k</code> and community detection algorithms for graph-based clustering.
+We could then use <code>linkClusters()</code>, <em><a href="https://CRAN.R-project.org/package=clustree">clustree</a></em> or similar functions to visualize the relationships between different clusterings.</p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" tabindex="-1"></a><span class="co"># Parallelizing for some speed.</span></span>
+<span id="cb38-2"><a href="#cb38-2" tabindex="-1"></a>out <span class="ot">&lt;-</span> <span class="fu">clusterSweep</span>(<span class="fu">reducedDim</span>(sce.pbmc, <span class="st">&quot;PCA&quot;</span>), </span>
+<span id="cb38-3"><a href="#cb38-3" tabindex="-1"></a>    <span class="fu">NNGraphParam</span>(), </span>
+<span id="cb38-4"><a href="#cb38-4" tabindex="-1"></a>    <span class="at">k=</span><span class="fu">as.integer</span>(<span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">15</span>, <span class="dv">20</span>, <span class="dv">25</span>, <span class="dv">30</span>, <span class="dv">35</span>, <span class="dv">40</span>)),</span>
+<span id="cb38-5"><a href="#cb38-5" tabindex="-1"></a>    <span class="at">cluster.fun=</span><span class="fu">c</span>(<span class="st">&quot;louvain&quot;</span>, <span class="st">&quot;walktrap&quot;</span>, <span class="st">&quot;infomap&quot;</span>),</span>
+<span id="cb38-6"><a href="#cb38-6" tabindex="-1"></a>    <span class="at">BPPARAM=</span>BiocParallel<span class="sc">::</span><span class="fu">MulticoreParam</span>(<span class="dv">8</span>))</span>
+<span id="cb38-7"><a href="#cb38-7" tabindex="-1"></a></span>
+<span id="cb38-8"><a href="#cb38-8" tabindex="-1"></a><span class="fu">colnames</span>(out<span class="sc">$</span>clusters)</span></code></pre></div>
+<pre><code>##  [1] &quot;k.5_cluster.fun.louvain&quot;   &quot;k.10_cluster.fun.louvain&quot; 
+##  [3] &quot;k.15_cluster.fun.louvain&quot;  &quot;k.20_cluster.fun.louvain&quot; 
+##  [5] &quot;k.25_cluster.fun.louvain&quot;  &quot;k.30_cluster.fun.louvain&quot; 
+##  [7] &quot;k.35_cluster.fun.louvain&quot;  &quot;k.40_cluster.fun.louvain&quot; 
+##  [9] &quot;k.5_cluster.fun.walktrap&quot;  &quot;k.10_cluster.fun.walktrap&quot;
+## [11] &quot;k.15_cluster.fun.walktrap&quot; &quot;k.20_cluster.fun.walktrap&quot;
+## [13] &quot;k.25_cluster.fun.walktrap&quot; &quot;k.30_cluster.fun.walktrap&quot;
+## [15] &quot;k.35_cluster.fun.walktrap&quot; &quot;k.40_cluster.fun.walktrap&quot;
+## [17] &quot;k.5_cluster.fun.infomap&quot;   &quot;k.10_cluster.fun.infomap&quot; 
+## [19] &quot;k.15_cluster.fun.infomap&quot;  &quot;k.20_cluster.fun.infomap&quot; 
+## [21] &quot;k.25_cluster.fun.infomap&quot;  &quot;k.30_cluster.fun.infomap&quot; 
+## [23] &quot;k.35_cluster.fun.infomap&quot;  &quot;k.40_cluster.fun.infomap&quot;</code></pre>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" tabindex="-1"></a><span class="fu">table</span>(out<span class="sc">$</span>clusters<span class="sc">$</span>k<span class="fl">.5</span>_cluster.fun.walktrap)</span></code></pre></div>
+<pre><code>## 
+##   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20 
+## 273 123 347 105 262 126 813  84 442  42 123 299 232 136 167  18  52  21 130  25 
+##  21  22  23  24  25  26  27 
+##  23  38  15  17   9  16  13</code></pre>
+<p>Parameter sweeps are particularly useful when combined with one of the metrics described in Section <a href="#quantifying-clustering-behavior">1.2</a>.
+This provides a high-level summary of the behavior of the clustering method as the parameters change, as demonstrated in Figure <a href="#fig:graph-parameter-sweep">1.13</a>.
+We can then make some decisions on which clustering(s) to use for further analyses.
+For example, we might choose a few clusterings that span several different resolutions, so as to obtain a greater diversity of summaries of the data;
+conversely, we might be able to save some time and effort by ignoring redundant clusterings with similar values for our metrics.</p>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(out<span class="sc">$</span>parameters)</span>
+<span id="cb42-2"><a href="#cb42-2" tabindex="-1"></a>df<span class="sc">$</span>num.clusters <span class="ot">&lt;-</span> <span class="fu">vapply</span>(<span class="fu">as.list</span>(out<span class="sc">$</span>clusters), <span class="cf">function</span>(cluster) { </span>
+<span id="cb42-3"><a href="#cb42-3" tabindex="-1"></a>    <span class="fu">length</span>(<span class="fu">unique</span>(cluster))</span>
+<span id="cb42-4"><a href="#cb42-4" tabindex="-1"></a>}, <span class="dv">0</span><span class="dt">L</span>)</span>
+<span id="cb42-5"><a href="#cb42-5" tabindex="-1"></a></span>
+<span id="cb42-6"><a href="#cb42-6" tabindex="-1"></a>all.sil <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">as.list</span>(out<span class="sc">$</span>clusters), <span class="cf">function</span>(cluster) {</span>
+<span id="cb42-7"><a href="#cb42-7" tabindex="-1"></a>    sil <span class="ot">&lt;-</span> <span class="fu">approxSilhouette</span>(<span class="fu">reducedDim</span>(sce.pbmc), cluster)</span>
+<span id="cb42-8"><a href="#cb42-8" tabindex="-1"></a>    <span class="fu">mean</span>(sil<span class="sc">$</span>width)</span>
+<span id="cb42-9"><a href="#cb42-9" tabindex="-1"></a>})</span>
+<span id="cb42-10"><a href="#cb42-10" tabindex="-1"></a>df<span class="sc">$</span>silhouette <span class="ot">&lt;-</span> <span class="fu">unlist</span>(all.sil)</span>
+<span id="cb42-11"><a href="#cb42-11" tabindex="-1"></a></span>
+<span id="cb42-12"><a href="#cb42-12" tabindex="-1"></a>all.wcss <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">as.list</span>(out<span class="sc">$</span>clusters), <span class="cf">function</span>(cluster) {</span>
+<span id="cb42-13"><a href="#cb42-13" tabindex="-1"></a>    <span class="fu">sum</span>(<span class="fu">clusterRMSD</span>(<span class="fu">reducedDim</span>(sce.pbmc), cluster, <span class="at">sum=</span><span class="cn">TRUE</span>), <span class="at">na.rm=</span><span class="cn">TRUE</span>)</span>
+<span id="cb42-14"><a href="#cb42-14" tabindex="-1"></a>})</span>
+<span id="cb42-15"><a href="#cb42-15" tabindex="-1"></a>df<span class="sc">$</span>wcss <span class="ot">&lt;-</span> <span class="fu">unlist</span>(all.wcss)</span>
+<span id="cb42-16"><a href="#cb42-16" tabindex="-1"></a></span>
+<span id="cb42-17"><a href="#cb42-17" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb42-18"><a href="#cb42-18" tabindex="-1"></a>gridExtra<span class="sc">::</span><span class="fu">grid.arrange</span>(</span>
+<span id="cb42-19"><a href="#cb42-19" tabindex="-1"></a>    <span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x=</span>k, <span class="at">y=</span>num.clusters, <span class="at">group=</span>cluster.fun, <span class="at">color=</span>cluster.fun)) <span class="sc">+</span> </span>
+<span id="cb42-20"><a href="#cb42-20" tabindex="-1"></a>        <span class="fu">geom_line</span>(<span class="at">lwd=</span><span class="dv">2</span>) <span class="sc">+</span> <span class="fu">scale_y_log10</span>(),</span>
+<span id="cb42-21"><a href="#cb42-21" tabindex="-1"></a>    <span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x=</span>k, <span class="at">y=</span>silhouette, <span class="at">group=</span>cluster.fun, <span class="at">color=</span>cluster.fun)) <span class="sc">+</span> </span>
+<span id="cb42-22"><a href="#cb42-22" tabindex="-1"></a>        <span class="fu">geom_line</span>(<span class="at">lwd=</span><span class="dv">2</span>),</span>
+<span id="cb42-23"><a href="#cb42-23" tabindex="-1"></a>    <span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x=</span>k, <span class="at">y=</span>wcss, <span class="at">group=</span>cluster.fun, <span class="at">color=</span>cluster.fun)) <span class="sc">+</span> </span>
+<span id="cb42-24"><a href="#cb42-24" tabindex="-1"></a>        <span class="fu">geom_line</span>(<span class="at">lwd=</span><span class="dv">2</span>),</span>
+<span id="cb42-25"><a href="#cb42-25" tabindex="-1"></a>    <span class="at">ncol=</span><span class="dv">3</span></span>
+<span id="cb42-26"><a href="#cb42-26" tabindex="-1"></a>)</span></code></pre></div>
+<div class="figure"><span style="display:block;" id="fig:graph-parameter-sweep"></span>
+<img src="more-clustering_files/figure-html/graph-parameter-sweep-1.png" alt="Behavior of graph-based clustering as quantified by the number of clusters (left), silhouette width (middle) and the within-cluster sum of squares (right), in response to changes in the number of neighbors `k` and the community detection algorithm." width="1440" />
+<p class="caption">
+Figure 1.13: Behavior of graph-based clustering as quantified by the number of clusters (left), silhouette width (middle) and the within-cluster sum of squares (right), in response to changes in the number of neighbors <code>k</code> and the community detection algorithm.
+</p>
+</div>
+<p>We could even use the sweep to automatically choose the “best” clustering by optimizing one or more of these metrics.
+The simplest strategy is to maximize the silhouette width, though one can imagine more complex scores involving combinations of metrics.
+This approach is valid but any automatic choice should be treated as a suggestion rather than a rule.
+As previously discussed, the clustering at the optimal value of a metric may not be the most scientifically informative clustering,
+given that well-separated clusters typically correspond to cell types that are already known.</p>
+</div>
+<div id="agglomerating-graph-communities" class="section level2 hasAnchor" number="1.6">
+<h2><span class="header-section-number">1.6</span> Agglomerating graph communities<a href="#agglomerating-graph-communities" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Some community detection algorithms operate by agglomeration and thus can be used to construct a hierarchical dendrogram based on the pattern of merges between clusters.
+The dendrogram itself is not particularly informative as it simply describes the order of merge steps performed by the algorithm; unlike the dendrograms produced by hierarchical clustering (<a href="http://bioconductor.org/books/3.21/OSCA.basic/clustering.html#hierarchical-clustering">Basic Section 5.4</a>), it does not capture the magnitude of differences between subpopulations.
+However, it does provide a convenient avenue for manually tuning the clustering resolution by generating nested clusterings using the <code>cut_at()</code> function, as shown below.</p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" tabindex="-1"></a>community.walktrap <span class="ot">&lt;-</span> igraph<span class="sc">::</span><span class="fu">cluster_walktrap</span>(g)</span>
+<span id="cb43-2"><a href="#cb43-2" tabindex="-1"></a><span class="fu">table</span>(igraph<span class="sc">::</span><span class="fu">cut_at</span>(community.walktrap, <span class="at">n=</span><span class="dv">5</span>))</span></code></pre></div>
+<pre><code>## 
+##    1    2    3    4    5 
+## 3514  219   46  126   46</code></pre>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" tabindex="-1"></a><span class="fu">table</span>(igraph<span class="sc">::</span><span class="fu">cut_at</span>(community.walktrap, <span class="at">n=</span><span class="dv">20</span>))</span></code></pre></div>
+<pre><code>## 
+##   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20 
+## 211  55 359 325 126 299 455  67 753 379  46 151 224 135 144  77  82  25  17  21</code></pre>
+<p>If <code>cut_at()</code>-like functionality is desired for non-hierarchical methods, <em><a href="https://bioconductor.org/packages/3.21/bluster">bluster</a></em> provides a <code>mergeCommunities()</code> function to retrospectively tune the clustering resolution.
+This function will greedily merge pairs of clusters until a specified number of clusters is achieved, where pairs are chosen to maximize the modularity at each merge step.</p>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" tabindex="-1"></a>community.louvain <span class="ot">&lt;-</span> igraph<span class="sc">::</span><span class="fu">cluster_louvain</span>(g)</span>
+<span id="cb47-2"><a href="#cb47-2" tabindex="-1"></a><span class="fu">table</span>(community.louvain<span class="sc">$</span>membership)</span></code></pre></div>
+<pre><code>## 
+##   1   2   3   4   5   6   7   8   9  10  11  12  13  14 
+## 567 335 124 343 521 775 158  48 218  46  86 364  97 269</code></pre>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" tabindex="-1"></a><span class="fu">try</span>(igraph<span class="sc">::</span><span class="fu">cut_at</span>(community.louvain, <span class="at">n=</span><span class="dv">10</span>)) <span class="co"># Not hierarchical.</span></span></code></pre></div>
+<pre><code>## Error in igraph::cut_at(community.louvain, n = 10) : 
+##   Not a hierarchical communitity structure</code></pre>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" tabindex="-1"></a>merged <span class="ot">&lt;-</span> <span class="fu">mergeCommunities</span>(g, community.louvain<span class="sc">$</span>membership, <span class="at">number=</span><span class="dv">10</span>)</span>
+<span id="cb51-2"><a href="#cb51-2" tabindex="-1"></a><span class="fu">table</span>(merged)</span></code></pre></div>
+<pre><code>## merged
+##   1   2   4   5   6   7   9  11  12  14 
+## 567 335 343 521 775 158 218 304 364 366</code></pre>
+</div>
+<div id="session-info" class="section level2 unnumbered hasAnchor">
+<h2>Session Info<a href="#session-info" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<button class="rebook-collapse">
+View session info
+</button>
+<div class="rebook-content">
+<pre><code>R Under development (unstable) (2025-02-07 r87707)
+Platform: aarch64-apple-darwin24.3.0
+Running under: macOS Sequoia 15.3.1
+
+Matrix products: default
+BLAS:   /Users/ludwig/Downloads/R-devel/lib/libRblas.dylib 
+LAPACK: /Users/ludwig/Downloads/R-devel/lib/libRlapack.dylib;  LAPACK version 3.12.0
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+time zone: America/New_York
+tzcode source: internal
+
+attached base packages:
+[1] stats4    stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+ [1] clustree_0.5.1              ggraph_2.2.1               
+ [3] pheatmap_1.0.12             ggplot2_3.5.1              
+ [5] bluster_1.17.0              scran_1.35.0               
+ [7] scuttle_1.17.0              SingleCellExperiment_1.29.2
+ [9] SummarizedExperiment_1.37.0 Biobase_2.67.0             
+[11] GenomicRanges_1.59.1        GenomeInfoDb_1.43.4        
+[13] IRanges_2.41.2              S4Vectors_0.45.2           
+[15] BiocGenerics_0.53.6         generics_0.1.3             
+[17] MatrixGenerics_1.19.1       matrixStats_1.5.0          
+[19] BiocStyle_2.35.0            rebook_1.17.0              
+
+loaded via a namespace (and not attached):
+ [1] gridExtra_2.3           CodeDepends_0.6.6       rlang_1.1.5            
+ [4] magrittr_2.0.3          compiler_4.5.0          dir.expiry_1.15.0      
+ [7] vctrs_0.6.5             pkgconfig_2.0.3         crayon_1.5.3           
+[10] fastmap_1.2.0           backports_1.5.0         XVector_0.47.2         
+[13] labeling_0.4.3          rmarkdown_2.29          graph_1.85.1           
+[16] UCSC.utils_1.3.1        ggbeeswarm_0.7.2        purrr_1.0.4            
+[19] xfun_0.51               cachem_1.1.0            beachmat_2.23.6        
+[22] jsonlite_1.8.9          DelayedArray_0.33.5     tweenr_2.0.3           
+[25] BiocParallel_1.41.2     irlba_2.3.5.1           parallel_4.5.0         
+[28] cluster_2.1.8           R6_2.5.1                bslib_0.9.0            
+[31] RColorBrewer_1.1-3      limma_3.63.3            jquerylib_0.1.4        
+[34] Rcpp_1.0.14             bookdown_0.42           knitr_1.49             
+[37] Matrix_1.7-2            igraph_2.1.4            tidyselect_1.2.1       
+[40] abind_1.4-8             yaml_2.3.10             viridis_0.6.5          
+[43] codetools_0.2-20        lattice_0.22-6          tibble_3.2.1           
+[46] withr_3.0.2             evaluate_1.0.3          polyclip_1.10-7        
+[49] pillar_1.10.1           BiocManager_1.30.25     filelock_1.0.3         
+[52] checkmate_2.3.2         munsell_0.5.1           scales_1.3.0           
+[55] glue_1.8.0              metapod_1.15.0          tools_4.5.0            
+[58] BiocNeighbors_2.1.3     ScaledMatrix_1.15.0     locfit_1.5-9.11        
+[61] graphlayouts_1.2.2      XML_3.99-0.18           tidygraph_1.3.1        
+[64] grid_4.5.0              tidyr_1.3.1             edgeR_4.5.2            
+[67] colorspace_2.1-1        GenomeInfoDbData_1.2.13 ggforce_0.4.2          
+[70] beeswarm_0.4.0          BiocSingular_1.23.0     vipor_0.4.7            
+[73] cli_3.6.3               rsvd_1.0.5              rappdirs_0.3.3         
+[76] S4Arrays_1.7.2          viridisLite_0.4.2       dplyr_1.1.4            
+[79] gtable_0.3.6            sass_0.4.9              digest_0.6.37          
+[82] ggrepel_0.9.6           SparseArray_1.7.5       dqrng_0.4.1            
+[85] farver_2.1.2            memoise_2.0.1           htmltools_0.5.8.1      
+[88] lifecycle_1.0.4         httr_1.4.7              statmod_1.5.0          
+[91] MASS_7.3-64            </code></pre>
+</div>
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div class="csl-entry">
+Von Luxburg, U. 2010. <span>“Clustering Stability: An Overview.”</span> <em>Foundations and Trends in Machine Learning</em> 2 (3): 235–74.
+</div>
+<div class="csl-entry">
+Wolf, F. Alexander, Fiona Hamey, Mireya Plass, Jordi Solana, Joakim S. Dahlin, Berthold Gottgens, Nikolaus Rajewsky, Lukas Simon, and Fabian J. Theis. 2017. <span>“Graph Abstraction Reconciles Clustering with Trajectory Inference Through a Topology Preserving Map of Single Cells.”</span> <em>bioRxiv</em>. <a href="https://doi.org/10.1101/208819">https://doi.org/10.1101/208819</a>.
+</div>
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+  "sharing": {
+    "github": true,
+    "facebook": true,
+    "twitter": true,
+    "linkedin": true,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "sans",
+    "size": 2
+  },
+  "edit": {
+    "link": "https://github.com/OSCA-source/OSCA.advanced/edit/master/inst/book/%s",
+    "text": "Edit"
+  },
+  "history": {
+    "link": "https://github.com/OSCA-source/OSCA.advanced/commits/master/inst/book/%s",
+    "text": null
+  },
+  "view": {
+    "link": "https://github.com/OSCA-source/OSCA.advanced/blob/master/inst/book/%s",
+    "text": null
+  },
+  "download": null,
+  "search": false,
+  "toc": {
+    "collapse": "subsection"
+  }
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
