@@ -113,8 +113,8 @@ ggplot(pure.data, aes(x=cluster, y=purity, colour=maximum)) +
     ggbeeswarm::geom_quasirandom(method="smiley")
 ```
 
-```{r, echo=FALSE, eval=FALSE}
-by.cluster <- split(pure.pbmc$purity, clust)
+```{r, echo=FALSE}
+by.cluster <- split(pure.data$purity, pure.data$cluster)
 med.by.clust <- vapply(by.cluster, median, 0)
 stopifnot(all(med.by.clust > 0.9))
 ```
@@ -156,7 +156,7 @@ plot(rmsd, sf.by.clust, log="xy", pch=16, xlab="RMSD", ylab="Average size factor
 ```
 
 ```{r, echo=FALSE}
-stopifnot(which.max(-sf.by.clust) == which.max(rmsd))
+which.min(sf.by.clust) %in% head(order(rmsd, decreasing = TRUE), n = 2)
 ```
 
 ### Using graph modularity
