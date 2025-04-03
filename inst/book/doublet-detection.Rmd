@@ -255,7 +255,12 @@ The barcode-rank plots are quite similar to what one might expect from gene expr
 library(DropletUtils)
 
 set.seed(101)
-hash.calls <- emptyDrops(counts(hto.sce), by.rank=40000)
+# HTO counts tend to exhibit stronger overdispersion (i.e., lower `alpha` in 
+# the `emptyDrops()` calculations), increasing the risk of violating 
+# `emptyDrops()`'s distributional assumptions.
+# Setting `alpha=NULL` estimates alpha using maximum likelihood; see 
+# `?emptyDrops` for details.
+hash.calls <- emptyDrops(counts(hto.sce), by.rank=40000, alpha=NULL)
 is.cell <- which(hash.calls$FDR <= 0.001)
 length(is.cell)
 
