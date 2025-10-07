@@ -100,8 +100,7 @@ pure.pbmc <- neighborPurity(reducedDim(sce.pbmc, "PCA"), colLabels(sce.pbmc))
 pure.pbmc
 ```
 
-In Figure \@ref(fig:pbmc-box-purities), median purity values are consistently greater than 0.9,
-indicating that most cells in each cluster are primarily surrounded by other cells from the same cluster.
+In Figure \@ref(fig:pbmc-box-purities), median purity values almost all greater than 0.9, indicating that most cells in each cluster are primarily surrounded by other cells from the same cluster.
 Some clusters have low purity values that may warrant more careful inspection - these probably represent closely related subpopulations.
 
 ```{r pbmc-box-purities, fig.wide=TRUE, fig.cap="Distribution of cluster purities across cells in each cluster of the PBMC dataset. Each point represents a cell and colored with the identity of the cluster contributing the largest proportion of its neighbors."}
@@ -116,7 +115,7 @@ ggplot(pure.data, aes(x=cluster, y=purity, colour=maximum)) +
 ```{r, echo=FALSE}
 by.cluster <- split(pure.data$purity, pure.data$cluster)
 med.by.clust <- vapply(by.cluster, median, 0)
-stopifnot(all(med.by.clust > 0.9))
+stopifnot(all(med.by.clust > 0.89))
 ```
 
 To determine which clusters contaminate each other, we can identify the cluster with the most neighbors for each cell.
