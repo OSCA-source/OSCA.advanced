@@ -504,7 +504,7 @@ plot(0,0,type="n", xlab="Rank", ylab="Number of UMIs",
     log="xy", xlim=xlim, ylim=ylim)
 
 for (i in seq_along(after.mat$cleaned)) {
-    cur.stats <- barcodeRanks(after.mat$cleaned[[i]])
+    cur.stats <- barcodeRanks(after.mat$cleaned[[i]], lower = 90)
     u <- sort(cur.stats$total, decreasing=TRUE)
     lines(seq_along(u), u, col=i, lwd=5)
 }
