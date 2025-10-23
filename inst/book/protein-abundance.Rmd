@@ -689,7 +689,7 @@ The example below will find the top 10 genes in the RNA data that are correlated
 ```{r}
 set.seed(100) # For the IRLBA step.
 top.correlations <- findTopCorrelations(x=altExp(sce.main), y=sce.main, 
-    number=10, use.names=c(NA, "Symbol"), BPPARAM=MulticoreParam(4))
+    number=10, use.names=c(NA, "Symbol"), BPPARAM=SerialParam())
 top.correlations$positive
 ```
 
