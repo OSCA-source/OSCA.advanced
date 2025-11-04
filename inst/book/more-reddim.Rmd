@@ -479,26 +479,28 @@ reducedDim(sce.zeisel, "dens-SNE") <- dt
 dm <- densmap(reducedDim(sce.zeisel, "PCA"), dens_frac = 0.4, dens_lambda = 0.2)
 reducedDim(sce.zeisel, "densMAP") <- dm
 sce.zeisel <- runUMAP(sce.zeisel) # for comparison
+sce.zeisel <- runTSNE(sce.zeisel) # for comparison
 ```
 
 
 ```{r, echo=FALSE}
+set.seed(123)
 ds <- reducedDim(sce.zeisel, "dens-SNE")
 ts <- reducedDim(sce.zeisel, "TSNE")
-du <- reducedDim(sce.zeisel, "dens-SNE")
-tu <- reducedDim(sce.zeisel, "TSNE")
+du <- reducedDim(sce.zeisel, "densMAP")
+tu <- reducedDim(sce.zeisel, "UMAP")
 ds <- scale(ds)
 ts <- scale(ts)
 du <- scale(du)
 tu <- scale(tu)
 
-vars_d <- colVars(ds[sce.zeisel$level1class == "astrocytes_ependymal", ])
-vars_t <- colVars(ts[sce.zeisel$level1class == "astrocytes_ependymal", ])
-stopifnot(mean(vars_d) > mean(vars_t))
+vars_ds <- colVars(ds[sce.zeisel$level1class == "astrocytes_ependymal", ])
+vars_ts <- colVars(ts[sce.zeisel$level1class == "astrocytes_ependymal", ])
+stopifnot(mean(vars_ds) > mean(vars_ts))
 
-vars_d <- colVars(du[sce.zeisel$level1class == "astrocytes_ependymal", ])
-vars_t <- colVars(tu[sce.zeisel$level1class == "astrocytes_ependymal", ])
-stopifnot(mean(vars_d) > mean(vars_t))
+vars_du <- colVars(du[sce.zeisel$level1class == "astrocytes_ependymal", ])
+vars_tu <- colVars(tu[sce.zeisel$level1class == "astrocytes_ependymal", ])
+stopifnot(mean(vars_du) > mean(vars_tu))
 ```
 
 These methods provide more information about transcriptional heterogeneity within clusters (Figure \@ref(fig:densne)),
