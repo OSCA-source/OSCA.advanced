@@ -489,7 +489,7 @@ ts <- reducedDim(sce.zeisel, "TSNE")
 tu <- reducedDim(sce.zeisel, "UMAP")
 ds <- scale(dt)
 ts <- scale(ts)
-ds <- scale(dm)
+du <- scale(dm)
 tu <- scale(tu)
 
 vars_ds <- colVars(ds[sce.zeisel$level1class == "astrocytes_ependymal", ])
