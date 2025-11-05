@@ -473,6 +473,7 @@ The dens-SNE and densMAP algorithms mitigate this effect by incorporating inform
 We demonstrate below by applying these approaches on the PCs of the Zeisel dataset using the `r Biocpkg("densvis")` wrapper package.
 
 ```{r}
+set.seed(123)
 library(densvis)
 dt <- densne(reducedDim(sce.zeisel, "PCA"), dens_frac = 0.4, dens_lambda = 0.2)
 reducedDim(sce.zeisel, "dens-SNE") <- dt
@@ -484,14 +485,11 @@ sce.zeisel <- runTSNE(sce.zeisel) # for comparison
 
 
 ```{r, echo=FALSE}
-set.seed(123)
-ds <- reducedDim(sce.zeisel, "dens-SNE")
 ts <- reducedDim(sce.zeisel, "TSNE")
-du <- reducedDim(sce.zeisel, "densMAP")
 tu <- reducedDim(sce.zeisel, "UMAP")
-ds <- scale(ds)
+ds <- scale(dt)
 ts <- scale(ts)
-du <- scale(du)
+ds <- scale(dm)
 tu <- scale(tu)
 
 vars_ds <- colVars(ds[sce.zeisel$level1class == "astrocytes_ependymal", ])
