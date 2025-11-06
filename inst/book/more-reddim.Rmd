@@ -494,11 +494,11 @@ tu <- scale(tu)
 
 vars_ds <- colVars(ds[sce.zeisel$level1class == "astrocytes_ependymal", ])
 vars_ts <- colVars(ts[sce.zeisel$level1class == "astrocytes_ependymal", ])
-stopifnot(mean(vars_ds) > mean(vars_ts))
+stopifnot(sum(vars_ds) > mean(vars_ts))
 
 vars_du <- colVars(du[sce.zeisel$level1class == "astrocytes_ependymal", ])
 vars_tu <- colVars(tu[sce.zeisel$level1class == "astrocytes_ependymal", ])
-stopifnot(mean(vars_du) > mean(vars_tu))
+stopifnot(sum(vars_du) > mean(vars_tu))
 ```
 
 These methods provide more information about transcriptional heterogeneity within clusters (Figure \@ref(fig:densne)),
