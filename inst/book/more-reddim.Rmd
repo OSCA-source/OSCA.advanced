@@ -475,9 +475,9 @@ We demonstrate below by applying these approaches on the PCs of the Zeisel datas
 ```{r}
 set.seed(123)
 library(densvis)
-dt <- densne(reducedDim(sce.zeisel, "PCA"), dens_frac = 0.4, dens_lambda = 0.2)
+dt <- densne(reducedDim(sce.zeisel, "PCA"), dens_frac = 0.4, dens_lambda = 0.4)
 reducedDim(sce.zeisel, "dens-SNE") <- dt
-dm <- densmap(reducedDim(sce.zeisel, "PCA"), dens_frac = 0.4, dens_lambda = 0.2)
+dm <- densmap(reducedDim(sce.zeisel, "PCA"), dens_frac = 0.4, dens_lambda = 0.4)
 reducedDim(sce.zeisel, "densMAP") <- dm
 sce.zeisel <- runUMAP(sce.zeisel) # for comparison
 sce.zeisel <- runTSNE(sce.zeisel) # for comparison
@@ -494,11 +494,11 @@ tu <- scale(tu)
 
 vars_ds <- colVars(ds[sce.zeisel$level1class == "astrocytes_ependymal", ])
 vars_ts <- colVars(ts[sce.zeisel$level1class == "astrocytes_ependymal", ])
-stopifnot(sum(vars_ds) > mean(vars_ts))
+stopifnot(mean(vars_ds) > mean(vars_ts))
 
 vars_du <- colVars(du[sce.zeisel$level1class == "astrocytes_ependymal", ])
 vars_tu <- colVars(tu[sce.zeisel$level1class == "astrocytes_ependymal", ])
-stopifnot(sum(vars_du) > mean(vars_tu))
+stopifnot(mean(vars_du) > mean(vars_tu))
 ```
 
 These methods provide more information about transcriptional heterogeneity within clusters (Figure \@ref(fig:densne)),
