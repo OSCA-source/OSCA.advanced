@@ -492,17 +492,17 @@ ts <- scale(ts)
 du <- scale(dm)
 tu <- scale(tu)
 
-vars_ds <- colVars(ds[sce.zeisel$level1class == "astrocytes_ependymal", ])
-vars_ts <- colVars(ts[sce.zeisel$level1class == "astrocytes_ependymal", ])
+vars_ds <- colVars(ds[sce.zeisel$level1class == "endothelial-mural", ])
+vars_ts <- colVars(ts[sce.zeisel$level1class == "endothelial-mural", ])
 stopifnot(mean(vars_ds) > mean(vars_ts))
 
-vars_du <- colVars(du[sce.zeisel$level1class == "astrocytes_ependymal", ])
-vars_tu <- colVars(tu[sce.zeisel$level1class == "astrocytes_ependymal", ])
+vars_du <- colVars(du[sce.zeisel$level1class == "endothelial-mural", ])
+vars_tu <- colVars(tu[sce.zeisel$level1class == "endothelial-mural", ])
 stopifnot(mean(vars_du) > mean(vars_tu))
 ```
 
 These methods provide more information about transcriptional heterogeneity within clusters (Figure \@ref(fig:densne)),
-with the astrocyte cluster being less compact in the density-preserving versions.
+with the endothelial cluster being less compact in the density-preserving versions.
 This excessive compactness can imply a lower level of within-population heterogeneity.
 
 ```{r densne, fig.width=10, fig.height=6, fig.cap="$t$-SNE, UMAP, dens-SNE and densMAP embeddings for the Zeisel brain data."}
