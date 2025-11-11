@@ -470,7 +470,7 @@ ggplot() +
 One downside of t$-$SNE and UMAP is that they preserve the neighbourhood structure of the data while neglecting the local density of the data.
 This can result in seemingly compact clusters on a t-SNE or UMAP plot that correspond to very heterogeneous groups in the original data.
 The dens-SNE and densMAP algorithms mitigate this effect by incorporating information about the average distance to the nearest neighbours when creating the embedding [@narayan2021densvis].
-We demonstrate below by applying these approaches on the PCs of the Zeisel dataset using the `r Biocpkg("densvis")` wrapper package.
+We demonstrate this by applying t-SNE on the PCs of the Zeisel dataset using the `r Biocpkg("densvis")` wrapper package.
 
 ```{r}
 set.seed(123)
