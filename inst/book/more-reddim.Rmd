@@ -33,42 +33,43 @@ sce.zeisel <- fixedPCA(sce.zeisel, subset.row=top.zeisel)
 
 ## More choices for the number of PCs
 
-### Using the elbow point
+<!-- NOTE: This section commented out due to issues with PCAtools -->
+<!-- ### Using the elbow point -->
 
-A simple heuristic for choosing the suitable number of PCs $d$ involves identifying the elbow point in the percentage of variance explained by successive PCs.
-This refers to the "elbow" in the curve of a scree plot as shown in Figure \@ref(fig:elbow).
+<!-- A simple heuristic for choosing the suitable number of PCs $d$ involves identifying the elbow point in the percentage of variance explained by successive PCs. -->
+<!-- This refers to the "elbow" in the curve of a scree plot as shown in Figure \@ref(fig:elbow). -->
 
-```{r elbow, fig.cap="Percentage of variance explained by successive PCs in the Zeisel brain data. The identified elbow point is marked with a red line."}
-# Percentage of variance explained is tucked away in the attributes.
-percent.var <- attr(reducedDim(sce.zeisel), "percentVar")
+<!-- ```{r elbow, fig.cap="Percentage of variance explained by successive PCs in the Zeisel brain data. The identified elbow point is marked with a red line."} -->
+<!-- # Percentage of variance explained is tucked away in the attributes. -->
+<!-- percent.var <- attr(reducedDim(sce.zeisel), "percentVar") -->
 
-library(PCAtools)
-chosen.elbow <- findElbowPoint(percent.var)
-chosen.elbow
+<!-- library(PCAtools) -->
+<!-- chosen.elbow <- findElbowPoint(percent.var) -->
+<!-- chosen.elbow -->
 
-plot(percent.var, xlab="PC", ylab="Variance explained (%)")
-abline(v=chosen.elbow, col="red")
-```
+<!-- plot(percent.var, xlab="PC", ylab="Variance explained (%)") -->
+<!-- abline(v=chosen.elbow, col="red") -->
+<!-- ``` -->
 
-Our assumption is that each of the top PCs capturing biological signal should explain much more variance than the remaining PCs.
-Thus, there should be a sharp drop in the percentage of variance explained when we move past the last "biological" PC.
-This manifests as an elbow in the scree plot, the location of which serves as a natural choice for $d$.
-Once this is identified, we can subset the `reducedDims()` entry to only retain the first $d$ PCs of interest.
+<!-- Our assumption is that each of the top PCs capturing biological signal should explain much more variance than the remaining PCs. -->
+<!-- Thus, there should be a sharp drop in the percentage of variance explained when we move past the last "biological" PC. -->
+<!-- This manifests as an elbow in the scree plot, the location of which serves as a natural choice for $d$. -->
+<!-- Once this is identified, we can subset the `reducedDims()` entry to only retain the first $d$ PCs of interest. -->
 
-```{r}
-# Creating a new entry with only the first 20 PCs, 
-# which is useful if we still need the full set of PCs later. 
-reducedDim(sce.zeisel, "PCA.elbow") <- reducedDim(sce.zeisel)[,1:chosen.elbow]
-reducedDimNames(sce.zeisel)
-```
+<!-- ```{r} -->
+<!-- # Creating a new entry with only the first 20 PCs,  -->
+<!-- # which is useful if we still need the full set of PCs later.  -->
+<!-- reducedDim(sce.zeisel, "PCA.elbow") <- reducedDim(sce.zeisel)[,1:chosen.elbow] -->
+<!-- reducedDimNames(sce.zeisel) -->
+<!-- ``` -->
 
-From a practical perspective, the use of the elbow point tends to retain fewer PCs compared to other methods.
-The definition of "much more variance" is relative so, in order to be retained, later PCs must explain a amount of variance that is comparable to that explained by the first few PCs.
-Strong biological variation in the early PCs will shift the elbow to the left, potentially excluding weaker (but still interesting) variation in the next PCs immediately following the elbow.
+<!-- From a practical perspective, the use of the elbow point tends to retain fewer PCs compared to other methods. -->
+<!-- The definition of "much more variance" is relative so, in order to be retained, later PCs must explain a amount of variance that is comparable to that explained by the first few PCs. -->
+<!-- Strong biological variation in the early PCs will shift the elbow to the left, potentially excluding weaker (but still interesting) variation in the next PCs immediately following the elbow. -->
 
 ### Using the technical noise
 
-Another strategy is to retain all PCs until the percentage of total variation explained reaches some threshold $T$.
+One strategy is to retain all PCs until the percentage of total variation explained reaches some threshold $T$.
 For example, we might retain the top set of PCs that explains 80% of the total variation in the data.
 Of course, it would be pointless to swap one arbitrary parameter $d$ for another $T$.
 Instead, we derive a suitable value for $T$ by calculating the proportion of variance in the data that is attributed to the biological component.
@@ -126,7 +127,7 @@ stopifnot(ncol(reducedDim(denoised.pbmc2))==5)
 
 ### Based on population structure
 
-Yet another method to choose $d$ uses information about the number of subpopulations in the data.
+Another method to choose $d$ uses information about the number of subpopulations in the data.
 Consider a situation where each subpopulation differs from the others along a different axis in the high-dimensional space
 (e.g., because it is defined by a unique set of marker genes).
 This suggests that we should set $d$ to the number of unique subpopulations minus 1,
@@ -165,116 +166,117 @@ There is no need to preserve biological signal beyond what is distinguishable in
 However, it involves strong assumptions about the nature of the biological differences between subpopulations - and indeed, discrete subpopulations may not even exist in studies of continuous processes like differentiation.
 It also requires repeated applications of the clustering procedure on increasing number of PCs, which may be computational expensive.
 
-### Using random matrix theory
+<!-- NOTE: This section commented out due to issues with PCAtools -->
+<!-- ### Using random matrix theory -->
 
-We consider the observed (log-)expression matrix to be the sum of 
-(i) a low-rank matrix containing the true biological signal for each cell
-and (ii) a random matrix representing the technical noise in the data. 
-Under this interpretation, we can use random matrix theory to guide the choice of the number of PCs
-based on the properties of the noise matrix.
+<!-- We consider the observed (log-)expression matrix to be the sum of  -->
+<!-- (i) a low-rank matrix containing the true biological signal for each cell -->
+<!-- and (ii) a random matrix representing the technical noise in the data.  -->
+<!-- Under this interpretation, we can use random matrix theory to guide the choice of the number of PCs -->
+<!-- based on the properties of the noise matrix. -->
 
-The Marchenko-Pastur (MP) distribution defines an upper bound on the singular values of a matrix with random i.i.d. entries. 
-Thus, all PCs associated with larger singular values are likely to contain real biological structure -
-or at least, signal beyond that expected by noise - and should be retained [@shekhar2016comprehensive].
-We can implement this scheme using the `chooseMarchenkoPastur()` function from the `r Biocpkg("PCAtools")` package,
-given the dimensionality of the matrix used for the PCA (noting that we only used the HVG subset);
-the variance explained by each PC (not the percentage);
-and the variance of the noise matrix derived from our previous variance decomposition results.
+<!-- The Marchenko-Pastur (MP) distribution defines an upper bound on the singular values of a matrix with random i.i.d. entries.  -->
+<!-- Thus, all PCs associated with larger singular values are likely to contain real biological structure - -->
+<!-- or at least, signal beyond that expected by noise - and should be retained [@shekhar2016comprehensive]. -->
+<!-- We can implement this scheme using the `chooseMarchenkoPastur()` function from the `r Biocpkg("PCAtools")` package, -->
+<!-- given the dimensionality of the matrix used for the PCA (noting that we only used the HVG subset); -->
+<!-- the variance explained by each PC (not the percentage); -->
+<!-- and the variance of the noise matrix derived from our previous variance decomposition results. -->
 
-<!--
-We could also use the median of the total variances to account for uninteresting biological noise,
-which would be analogous to fitting the trend to the genes in the first place.
-However, this would weaken the theoretical foundation of i.i.d.'ness for the MP limit.
--->
+<!-- <!-- -->
+<!-- We could also use the median of the total variances to account for uninteresting biological noise, -->
+<!-- which would be analogous to fitting the trend to the genes in the first place. -->
+<!-- However, this would weaken the theoretical foundation of i.i.d.'ness for the MP limit. -->
+<!-- --> -->
 
-```{r}
-# Generating more PCs for demonstration purposes:
-set.seed(10100101)
-sce.zeisel2 <- fixedPCA(sce.zeisel, subset.row=top.zeisel, rank=200)
+<!-- ```{r} -->
+<!-- # Generating more PCs for demonstration purposes: -->
+<!-- set.seed(10100101) -->
+<!-- sce.zeisel2 <- fixedPCA(sce.zeisel, subset.row=top.zeisel, rank=200) -->
 
-# Actual variance explained is also provided in the attributes:
-mp.choice <- chooseMarchenkoPastur(
-    .dim=c(length(top.zeisel), ncol(sce.zeisel2)),
-    var.explained=attr(reducedDim(sce.zeisel2), "varExplained"),
-    noise=median(dec.zeisel[top.zeisel,"tech"]))
+<!-- # Actual variance explained is also provided in the attributes: -->
+<!-- mp.choice <- chooseMarchenkoPastur( -->
+<!--     .dim=c(length(top.zeisel), ncol(sce.zeisel2)), -->
+<!--     var.explained=attr(reducedDim(sce.zeisel2), "varExplained"), -->
+<!--     noise=median(dec.zeisel[top.zeisel,"tech"])) -->
 
-mp.choice
-```
+<!-- mp.choice -->
+<!-- ``` -->
 
-```{r, echo=FALSE}
-# Check that we haven't capped out.
-stopifnot(mp.choice > 10)
-stopifnot(mp.choice < 200)
-```
+<!-- ```{r, echo=FALSE} -->
+<!-- # Check that we haven't capped out. -->
+<!-- stopifnot(mp.choice > 10) -->
+<!-- stopifnot(mp.choice < 200) -->
+<!-- ``` -->
 
-We can then subset the PC coordinate matrix by the first `mp.choice` columns as previously demonstrated.
-It is best to treat this as a guideline only; PCs below the MP limit are not necessarily uninteresting, especially in noisy datasets where the higher `noise` drives a more aggressive choice of $d$.
-Conversely, many PCs above the limit may not be relevant if they are driven by uninteresting biological processes like transcriptional bursting, cell cycle or metabolic variation.
-Morever, the use of the MP distribution is not entirely justified here as the noise distribution differs by abundance for each gene and by sequencing depth for each cell.
+<!-- We can then subset the PC coordinate matrix by the first `mp.choice` columns as previously demonstrated. -->
+<!-- It is best to treat this as a guideline only; PCs below the MP limit are not necessarily uninteresting, especially in noisy datasets where the higher `noise` drives a more aggressive choice of $d$. -->
+<!-- Conversely, many PCs above the limit may not be relevant if they are driven by uninteresting biological processes like transcriptional bursting, cell cycle or metabolic variation. -->
+<!-- Morever, the use of the MP distribution is not entirely justified here as the noise distribution differs by abundance for each gene and by sequencing depth for each cell. -->
 
-In a similar vein, Horn's parallel analysis is commonly used to pick the number of PCs to retain in factor analysis.
-This involves randomizing the input matrix, repeating the PCA and creating a scree plot of the PCs of the randomized matrix.
-The desired number of PCs is then chosen based on the intersection of the randomized scree plot with that of the original matrix (Figure \@ref(fig:zeisel-parallel-pc-choice)).
-Here, the reasoning is that PCs are unlikely to be interesting if they explain less variance that that of the corresponding PC of a random matrix.
-Note that this differs from the MP approach as we are not using the upper bound of randomized singular values to threshold the original PCs.
+<!-- In a similar vein, Horn's parallel analysis is commonly used to pick the number of PCs to retain in factor analysis. -->
+<!-- This involves randomizing the input matrix, repeating the PCA and creating a scree plot of the PCs of the randomized matrix. -->
+<!-- The desired number of PCs is then chosen based on the intersection of the randomized scree plot with that of the original matrix (Figure \@ref(fig:zeisel-parallel-pc-choice)). -->
+<!-- Here, the reasoning is that PCs are unlikely to be interesting if they explain less variance that that of the corresponding PC of a random matrix. -->
+<!-- Note that this differs from the MP approach as we are not using the upper bound of randomized singular values to threshold the original PCs. -->
 
-```{r zeisel-parallel-pc-choice, fig.cap="Percentage of variance explained by each PC in the original matrix (black) and the PCs in the randomized matrix (grey) across several randomization iterations. The red line marks the chosen number of PCs."}
-set.seed(100010)
-horn <- parallelPCA(logcounts(sce.zeisel)[top.zeisel,],
-    BSPARAM=BiocSingular::IrlbaParam(), niters=10)
-horn$n
+<!-- ```{r zeisel-parallel-pc-choice, fig.cap="Percentage of variance explained by each PC in the original matrix (black) and the PCs in the randomized matrix (grey) across several randomization iterations. The red line marks the chosen number of PCs."} -->
+<!-- set.seed(100010) -->
+<!-- horn <- parallelPCA(logcounts(sce.zeisel)[top.zeisel,], -->
+<!--     BSPARAM=BiocSingular::IrlbaParam(), niters=10) -->
+<!-- horn$n -->
 
-plot(horn$original$variance, type="b", log="y", pch=16)
-permuted <- horn$permuted
-for (i in seq_len(ncol(permuted))) {
-    points(permuted[,i], col="grey80", pch=16)
-    lines(permuted[,i], col="grey80", pch=16)
-}
-abline(v=horn$n, col="red")
-```
+<!-- plot(horn$original$variance, type="b", log="y", pch=16) -->
+<!-- permuted <- horn$permuted -->
+<!-- for (i in seq_len(ncol(permuted))) { -->
+<!--     points(permuted[,i], col="grey80", pch=16) -->
+<!--     lines(permuted[,i], col="grey80", pch=16) -->
+<!-- } -->
+<!-- abline(v=horn$n, col="red") -->
+<!-- ``` -->
 
-```{r, echo=FALSE}
-# Check that we haven't capped out.
-stopifnot(horn$n > 10)
-stopifnot(horn$n < 50)
-```
+<!-- ```{r, echo=FALSE} -->
+<!-- # Check that we haven't capped out. -->
+<!-- stopifnot(horn$n > 10) -->
+<!-- stopifnot(horn$n < 50) -->
+<!-- ``` -->
 
-The `parallelPCA()` function helpfully emits the PC coordinates in  `horn$original$rotated`,
-which we can subset by `horn$n` and add to the `reducedDims()` of our `SingleCellExperiment`.
-Parallel analysis is reasonably intuitive (as random matrix methods go) and avoids any i.i.d. assumption across genes.
-However, its obvious disadvantage is the not-insignificant computational cost of randomizing and repeating the PCA.
-One can also debate whether the scree plot of the randomized matrix is even comparable to that of the original,
-given that the former includes biological variation and thus cannot be interpreted as purely technical noise.
-This manifests in Figure \@ref(fig:zeisel-parallel-pc-choice) as a consistently higher curve for the randomized matrix due to the redistribution of biological variation to the later PCs.
+<!-- The `parallelPCA()` function helpfully emits the PC coordinates in  `horn$original$rotated`, -->
+<!-- which we can subset by `horn$n` and add to the `reducedDims()` of our `SingleCellExperiment`. -->
+<!-- Parallel analysis is reasonably intuitive (as random matrix methods go) and avoids any i.i.d. assumption across genes. -->
+<!-- However, its obvious disadvantage is the not-insignificant computational cost of randomizing and repeating the PCA. -->
+<!-- One can also debate whether the scree plot of the randomized matrix is even comparable to that of the original, -->
+<!-- given that the former includes biological variation and thus cannot be interpreted as purely technical noise. -->
+<!-- This manifests in Figure \@ref(fig:zeisel-parallel-pc-choice) as a consistently higher curve for the randomized matrix due to the redistribution of biological variation to the later PCs. -->
 
-Another approach is based on optimizing the reconstruction error of the low-rank representation [@gavish2014optimal].
-Recall that PCA produces both the matrix of per-cell coordinates and a rotation matrix of per-gene loadings,
-the product of which recovers the original log-expression matrix. 
-If we subset these two matrices to the first $d$ dimensions, the product of the resulting submatrices serves as an approximation of the original matrix.
-Under certain conditions, the difference between this approximation and the true low-rank signal (i.e., _sans_ the noise matrix) has a defined mininum at a certain number of dimensions.
-This minimum can be defined using the `chooseGavishDonoho()` function from `r Biocpkg("PCAtools")` as shown below.
+<!-- Another approach is based on optimizing the reconstruction error of the low-rank representation [@gavish2014optimal]. -->
+<!-- Recall that PCA produces both the matrix of per-cell coordinates and a rotation matrix of per-gene loadings, -->
+<!-- the product of which recovers the original log-expression matrix.  -->
+<!-- If we subset these two matrices to the first $d$ dimensions, the product of the resulting submatrices serves as an approximation of the original matrix. -->
+<!-- Under certain conditions, the difference between this approximation and the true low-rank signal (i.e., _sans_ the noise matrix) has a defined mininum at a certain number of dimensions. -->
+<!-- This minimum can be defined using the `chooseGavishDonoho()` function from `r Biocpkg("PCAtools")` as shown below. -->
 
-```{r}
-gv.choice <- chooseGavishDonoho(
-    .dim=c(length(top.zeisel), ncol(sce.zeisel2)),
-    var.explained=attr(reducedDim(sce.zeisel2), "varExplained"),
-    noise=median(dec.zeisel[top.zeisel,"tech"]))
+<!-- ```{r} -->
+<!-- gv.choice <- chooseGavishDonoho( -->
+<!--     .dim=c(length(top.zeisel), ncol(sce.zeisel2)), -->
+<!--     var.explained=attr(reducedDim(sce.zeisel2), "varExplained"), -->
+<!--     noise=median(dec.zeisel[top.zeisel,"tech"])) -->
 
-gv.choice
-```
+<!-- gv.choice -->
+<!-- ``` -->
 
-```{r, echo=FALSE}
-# Check that we haven't capped out.
-stopifnot(gv.choice > 10)
-stopifnot(gv.choice < 200)
-```
+<!-- ```{r, echo=FALSE} -->
+<!-- # Check that we haven't capped out. -->
+<!-- stopifnot(gv.choice > 10) -->
+<!-- stopifnot(gv.choice < 200) -->
+<!-- ``` -->
 
-The Gavish-Donoho method is appealing as, unlike the other approaches for choosing $d$,
-the concept of the optimum is rigorously defined.
-By minimizing the reconstruction error, we can most accurately represent the true biological variation in terms of the distances between cells in PC space.
-However, there remains some room for difference between "optimal" and "useful";
-for example, noisy datasets may find themselves with very low $d$ as including more PCs will only ever increase reconstruction error, regardless of whether they contain relevant biological variation.
-This approach is also dependent on some strong i.i.d. assumptions about the noise matrix.
+<!-- The Gavish-Donoho method is appealing as, unlike the other approaches for choosing $d$, -->
+<!-- the concept of the optimum is rigorously defined. -->
+<!-- By minimizing the reconstruction error, we can most accurately represent the true biological variation in terms of the distances between cells in PC space. -->
+<!-- However, there remains some room for difference between "optimal" and "useful"; -->
+<!-- for example, noisy datasets may find themselves with very low $d$ as including more PCs will only ever increase reconstruction error, regardless of whether they contain relevant biological variation. -->
+<!-- This approach is also dependent on some strong i.i.d. assumptions about the noise matrix. -->
 
 ## Count-based dimensionality reduction
 
@@ -470,48 +472,50 @@ ggplot() +
 One downside of t$-$SNE and UMAP is that they preserve the neighbourhood structure of the data while neglecting the local density of the data.
 This can result in seemingly compact clusters on a t-SNE or UMAP plot that correspond to very heterogeneous groups in the original data.
 The dens-SNE and densMAP algorithms mitigate this effect by incorporating information about the average distance to the nearest neighbours when creating the embedding [@narayan2021densvis].
-We demonstrate below by applying these approaches on the PCs of the Zeisel dataset using the `r Biocpkg("densviz")` wrapper package.
+We demonstrate this by applying t-SNE on the PCs of the Zeisel dataset using the `r Biocpkg("densvis")` wrapper package.
 
 ```{r}
+set.seed(123)
 library(densvis)
-dt <- densne(reducedDim(sce.zeisel, "PCA"), dens_frac = 0.4, dens_lambda = 0.2)
+dt <- densne(reducedDim(sce.zeisel, "PCA"), dens_frac = 0.4, dens_lambda = 0.4)
 reducedDim(sce.zeisel, "dens-SNE") <- dt
-dm <- densmap(reducedDim(sce.zeisel, "PCA"), dens_frac = 0.4, dens_lambda = 0.2)
-reducedDim(sce.zeisel, "densMAP") <- dm
-sce.zeisel <- runUMAP(sce.zeisel) # for comparison
+sce.zeisel <- runTSNE(sce.zeisel) # for comparison
+
 ```
 
 
 ```{r, echo=FALSE}
-ds <- reducedDim(sce.zeisel, "dens-SNE")
 ts <- reducedDim(sce.zeisel, "TSNE")
-du <- reducedDim(sce.zeisel, "dens-SNE")
-tu <- reducedDim(sce.zeisel, "TSNE")
-ds <- scale(ds)
+ds <- scale(dt)
 ts <- scale(ts)
-du <- scale(du)
-tu <- scale(tu)
 
-vars_d <- colVars(ds[sce.zeisel$level1class == "astrocytes_ependymal", ])
-vars_t <- colVars(ts[sce.zeisel$level1class == "astrocytes_ependymal", ])
-stopifnot(mean(vars_d) > mean(vars_t))
+vars_ds <- colVars(ds[sce.zeisel$level1class == "endothelial-mural", ])
+vars_ts <- colVars(ts[sce.zeisel$level1class == "endothelial-mural", ])
+stopifnot(mean(vars_ds) > mean(vars_ts))
 
-vars_d <- colVars(du[sce.zeisel$level1class == "astrocytes_ependymal", ])
-vars_t <- colVars(tu[sce.zeisel$level1class == "astrocytes_ependymal", ])
-stopifnot(mean(vars_d) > mean(vars_t))
+## disabled UMAP because of platform inconsistencies (namely mac ARM64)
+# du <- densmap(reducedDim(sce.zeisel, "PCA"), dens_frac = 0.4, dens_lambda = 0.4)
+# reducedDim(sce.zeisel, "densMAP") <- du
+# sce.zeisel <- runUMAP(sce.zeisel) # for comparison
+# tu <- reducedDim(sce.zeisel, "UMAP")
+# du <- scale(dm)
+# tu <- scale(tu)
+# vars_du <- colVars(du[sce.zeisel$level1class == "endothelial-mural", ])
+# vars_tu <- colVars(tu[sce.zeisel$level1class == "endothelial-mural", ])
+# plotReducedDim(sce.zeisel, "UMAP", colour_by="level1class") + ggtitle("UMAP"),
+# plotReducedDim(sce.zeisel, "densMAP", colour_by="level1class") + ggtitle("densMAP"),
+# stopifnot(mean(vars_du) > mean(vars_tu))
 ```
 
 These methods provide more information about transcriptional heterogeneity within clusters (Figure \@ref(fig:densne)),
-with the astrocyte cluster being less compact in the density-preserving versions.
+with the endothelial cluster being less compact in the density-preserving versions.
 This excessive compactness can imply a lower level of within-population heterogeneity.
 
-```{r densne, fig.width=10, fig.height=6, fig.cap="$t$-SNE, UMAP, dens-SNE and densMAP embeddings for the Zeisel brain data."}
+```{r densne, fig.width=10, fig.height=6, fig.cap="$t$-SNE and dens-SNE embeddings for the Zeisel brain data."}
 
 gridExtra::grid.arrange(
     plotReducedDim(sce.zeisel, "TSNE", colour_by="level1class") + ggtitle("t-SNE"),
     plotReducedDim(sce.zeisel, "dens-SNE", colour_by="level1class") + ggtitle("dens-SNE"),
-    plotReducedDim(sce.zeisel, "UMAP", colour_by="level1class") + ggtitle("UMAP"),
-    plotReducedDim(sce.zeisel, "densMAP", colour_by="level1class") + ggtitle("densMAP"),
     ncol=2
 )
 ```
