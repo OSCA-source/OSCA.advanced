@@ -467,58 +467,6 @@ ggplot() +
     scale_shape_manual(values = c(8, 19), name = "Set", labels = c("Training", "Test"))
 ```
 
-### Density-preserving $t$-SNE and UMAP
-
-One downside of t$-$SNE and UMAP is that they preserve the neighbourhood structure of the data while neglecting the local density of the data.
-This can result in seemingly compact clusters on a t-SNE or UMAP plot that correspond to very heterogeneous groups in the original data.
-The dens-SNE and densMAP algorithms mitigate this effect by incorporating information about the average distance to the nearest neighbours when creating the embedding [@narayan2021densvis].
-We demonstrate this by applying t-SNE on the PCs of the Zeisel dataset using the `r Biocpkg("densvis")` wrapper package.
-
-```{r}
-set.seed(123)
-library(densvis)
-dt <- densne(reducedDim(sce.zeisel, "PCA"), dens_frac = 0.4, dens_lambda = 0.4)
-reducedDim(sce.zeisel, "dens-SNE") <- dt
-sce.zeisel <- runTSNE(sce.zeisel) # for comparison
-
-```
-
-
-```{r, echo=FALSE}
-ts <- reducedDim(sce.zeisel, "TSNE")
-ds <- scale(dt)
-ts <- scale(ts)
-
-vars_ds <- colVars(ds[sce.zeisel$level1class == "endothelial-mural", ])
-vars_ts <- colVars(ts[sce.zeisel$level1class == "endothelial-mural", ])
-stopifnot(mean(vars_ds) > mean(vars_ts))
-
-## disabled UMAP because of platform inconsistencies (namely mac ARM64)
-# du <- densmap(reducedDim(sce.zeisel, "PCA"), dens_frac = 0.4, dens_lambda = 0.4)
-# reducedDim(sce.zeisel, "densMAP") <- du
-# sce.zeisel <- runUMAP(sce.zeisel) # for comparison
-# tu <- reducedDim(sce.zeisel, "UMAP")
-# du <- scale(dm)
-# tu <- scale(tu)
-# vars_du <- colVars(du[sce.zeisel$level1class == "endothelial-mural", ])
-# vars_tu <- colVars(tu[sce.zeisel$level1class == "endothelial-mural", ])
-# plotReducedDim(sce.zeisel, "UMAP", colour_by="level1class") + ggtitle("UMAP"),
-# plotReducedDim(sce.zeisel, "densMAP", colour_by="level1class") + ggtitle("densMAP"),
-# stopifnot(mean(vars_du) > mean(vars_tu))
-```
-
-These methods provide more information about transcriptional heterogeneity within clusters (Figure \@ref(fig:densne)),
-with the endothelial cluster being less compact in the density-preserving versions.
-This excessive compactness can imply a lower level of within-population heterogeneity.
-
-```{r densne, fig.width=10, fig.height=6, fig.cap="$t$-SNE and dens-SNE embeddings for the Zeisel brain data."}
-
-gridExtra::grid.arrange(
-    plotReducedDim(sce.zeisel, "TSNE", colour_by="level1class") + ggtitle("t-SNE"),
-    plotReducedDim(sce.zeisel, "dens-SNE", colour_by="level1class") + ggtitle("dens-SNE"),
-    ncol=2
-)
-```
 
 ## Session Info {-}
 
