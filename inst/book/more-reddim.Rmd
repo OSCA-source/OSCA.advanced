@@ -506,9 +506,10 @@ gridExtra::grid.arrange(
 )
 ```
 
+-->
+
 ## Session Info {-}
 
 ```{r sessionInfo, echo=FALSE, results='asis'}
 prettySessionInfo()
 ```
--->
