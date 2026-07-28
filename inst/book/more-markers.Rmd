@@ -134,7 +134,8 @@ extractFromPackage("tenx-unfiltered-pbmc4k.Rmd", package="OSCA.workflows",
 
 ```{r}
 library(limma)
-dge <- convertTo(sce.pbmc)
+library(edgeR)
+dge <- SE2DGEList(sce.pbmc)
 uclust <- unique(dge$samples$label)
 all.results <- all.pairs <- list()
 counter <- 1L
