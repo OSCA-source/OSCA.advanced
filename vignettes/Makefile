@@ -1,5 +1,4 @@
 all: compiled
 
 compiled: 
-	"${R_HOME}/bin/R" -e "work.dir <- rebook::bookCache('OSCA.advanced'); handle <- rebook::preCompileBook('../inst/book', work.dir=work.dir, desc='../DESCRIPTION'); old.dir <- setwd(work.dir); bookdown::render_book('index.Rmd'); setwd(old.dir); rebook::postCompileBook(work.dir=work.dir, final.dir='../inst/doc/book', handle=handle)"
-	"${R_HOME}/bin/R" -e "rebook::createRedirects(file='redirect.txt')"
+	"${R_HOME}/bin/R" -e "final.dir <- '../inst/doc/book'; dir.create(final.dir, recursive=TRUE, showWarnings=FALSE); all.files <- list.files('../inst/book'); file.copy(file.path('../inst/book', all.files), file.path(final.dir, all.files));"
